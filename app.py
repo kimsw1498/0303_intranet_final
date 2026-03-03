@@ -1004,7 +1004,7 @@ def api_trend_youtube():
             try:
                 _ri = {
                     'searchQueries': [keyword],
-                    'maxResults': 10,
+                    'maxResults': 3,
                     'proxyConfiguration': {
                         'useApifyProxy': True,
                         'apifyProxyCountry': 'US',
