@@ -924,7 +924,7 @@ def api_trend_reddit():
 
         run_input = {
             'startUrls': [{'url': reddit_url}],
-            'maxItems': 100,
+            'maxItems': 30,
             'proxyConfiguration': {'useApifyProxy': True},
         }
 
@@ -995,9 +995,8 @@ def api_trend_youtube():
         client = ApifyClient(APIFY_TOKEN)
 
         keyword_list = [
-            "Best skincare routine 2026",
-            "Morning skincare for glowing skin",
-            "Skincare steps for healthy skin",
+            "Korean skincare routine 2026",
+            "K-beauty skincare tips",
         ]
 
         all_items = []
@@ -1092,7 +1091,7 @@ def api_trend_tiktok():
 
         run_input = {
             "hashtags": ["sephorahaul", "skincare", "beauty"],
-            "resultsPerPage": 10,
+            "resultsPerPage": 5,
             "proxyConfiguration": {"useApifyProxy": True},
         }
 
@@ -1320,7 +1319,7 @@ def api_trend_all():
         try:
             _rd_input = {
                 'startUrls': [{'url': 'https://www.reddit.com/r/AsianBeauty/new/'}],
-                'maxItems': 50,
+                'maxItems': 20,
                 'proxyConfiguration': {'useApifyProxy': True},
             }
             def _scrape_rd_all():
@@ -1441,7 +1440,7 @@ def api_outreach_creators():
             })
             try:
                 with urllib.request.urlopen(
-                    f'https://serpapi.com/search.json?{params}', timeout=20
+                    f'https://serpapi.com/search.json?{params}', timeout=10
                 ) as r:
                     d = json.loads(r.read().decode())
                 rows = d.get('organic_results', [])[:n]
@@ -1533,9 +1532,9 @@ def api_outreach_creators():
             start = (call_idx * idx_offset) % len(pool)
             return [pool[(start + i) % len(pool)] for i in range(count)]
 
-        cur_qs = pick(CUR_POOL, 3, 3)
-        tt_qs  = pick(TT_POOL,  4, 5)
-        ig_qs  = pick(IG_POOL,  2, 7)
+        cur_qs = pick(CUR_POOL, 2, 3)
+        tt_qs  = pick(TT_POOL,  2, 5)
+        ig_qs  = pick(IG_POOL,  1, 7)
         yt_q   = YT_POOL[call_idx % len(YT_POOL)]
         rd_q   = RD_POOL[call_idx % len(RD_POOL)]
 
@@ -1744,7 +1743,7 @@ def api_outreach_exhibitions():
             })
             try:
                 with urllib.request.urlopen(
-                    f'https://serpapi.com/search.json?{params}', timeout=20
+                    f'https://serpapi.com/search.json?{params}', timeout=10
                 ) as r:
                     d = json.loads(r.read().decode())
                 rows = d.get('organic_results', [])[:n]
