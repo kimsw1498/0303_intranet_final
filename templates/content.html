@@ -1,0 +1,1102 @@
+{% extends "layout.html" %}
+
+{% block title %}Klear · 콘텐츠 생성{% endblock %}
+
+{% block topbar_title %}<strong>콘텐츠 생성</strong> · AI 게시물 · 스토리보드 · 자동화{% endblock %}
+
+{% block content %}
+<div style="padding: 24px 28px; max-width: 1100px;">
+
+  <!-- 페이지 헤더 -->
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+    <div class="intel-page-title">✍️ 콘텐츠 생성</div>
+    <!-- SNS 바로가기 (추후 하이퍼링크 연결) -->
+    <div style="display:flex; align-items:center; gap:10px;">
+      <!-- Instagram -->
+      <a id="sns-link-instagram" href="https://www.instagram.com/klear_beauty_official?igsh=MXBzMm9qeG1ib2kwNg%3D%3D&utm_source=qr" title="Instagram" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:9px; background:#fff; border:1px solid #e8eaed; box-shadow:0 1px 4px rgba(0,0,0,0.07); transition:box-shadow 0.15s;" onmouseover="this.style.boxShadow='0 3px 10px rgba(0,0,0,0.13)'" onmouseout="this.style.boxShadow='0 1px 4px rgba(0,0,0,0.07)'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="25%" stop-color="#e6683c"/><stop offset="50%" stop-color="#dc2743"/><stop offset="75%" stop-color="#cc2366"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs>
+          <rect x="2" y="2" width="20" height="20" rx="5.5" fill="url(#ig-grad)"/>
+          <circle cx="12" cy="12" r="4" stroke="white" stroke-width="1.8" fill="none"/>
+          <circle cx="17.2" cy="6.8" r="1.1" fill="white"/>
+        </svg>
+      </a>
+      <!-- Facebook -->
+      <a id="sns-link-facebook" href="https://www.facebook.com/profile.php?id=61585032502028&rdid=fOM7OD9pga4TcRoW&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1CPSA92yip%2F#" title="Facebook" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:9px; background:#fff; border:1px solid #e8eaed; box-shadow:0 1px 4px rgba(0,0,0,0.07); transition:box-shadow 0.15s;" onmouseover="this.style.boxShadow='0 3px 10px rgba(0,0,0,0.13)'" onmouseout="this.style.boxShadow='0 1px 4px rgba(0,0,0,0.07)'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="24" height="24" rx="5.5" fill="#1877F2"/>
+          <path d="M16 8h-2a1 1 0 0 0-1 1v2h3l-.5 3H13v7h-3v-7H8v-3h2V9a4 4 0 0 1 4-4h2v3z" fill="white"/>
+        </svg>
+      </a>
+      <!-- X (Twitter) -->
+      <a id="sns-link-twitter" href="https://x.com/Klear111" title="X (Twitter)" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:9px; background:#fff; border:1px solid #e8eaed; box-shadow:0 1px 4px rgba(0,0,0,0.07); transition:box-shadow 0.15s;" onmouseover="this.style.boxShadow='0 3px 10px rgba(0,0,0,0.13)'" onmouseout="this.style.boxShadow='0 1px 4px rgba(0,0,0,0.07)'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="24" height="24" rx="5.5" fill="#000"/>
+          <path d="M17.75 4h2.6l-5.68 6.49L21.5 20h-5.23l-4.1-5.36L7.32 20H4.71l6.08-6.95L3.5 4h5.36l3.71 4.85L17.75 4zm-.91 14.39h1.44L7.23 5.47H5.68l11.16 12.92z" fill="white"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Tab Nav -->
+  <div class="intel-tabs" style="margin-bottom: 22px; display:inline-flex;">
+    <button class="intel-tab-btn active" onclick="switchTab('multi')" id="tab-multi">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><rect x="2" y="3" width="20" height="5" rx="1.5"/><rect x="2" y="10" width="9" height="5" rx="1.5"/><rect x="2" y="17" width="15" height="5" rx="1.5"/></svg>
+      멀티플랫폼 자동 작성
+    </button>
+    <button class="intel-tab-btn" onclick="switchTab('storyboard')" id="tab-storyboard">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><rect x="2" y="2" width="8" height="8" rx="1.5"/><rect x="14" y="2" width="8" height="8" rx="1.5"/><rect x="2" y="14" width="8" height="8" rx="1.5"/><rect x="14" y="14" width="8" height="8" rx="1.5"/></svg>
+      광고 스토리보드
+    </button>
+  </div>
+
+  <!-- ══════════ TAB 1: 멀티플랫폼 ══════════ -->
+  <div class="tab-pane active" id="pane-multi">
+    <div class="c-card">
+      <h3>🌐 멀티플랫폼 게시물 자동 작성</h3>
+      <p class="subtitle">제품 정보를 한 번 입력하면 선택한 모든 플랫폼에 최적화된 게시물을 동시에 생성합니다.</p>
+
+      <div class="section-grid-2">
+        <div class="field-group">
+          <label class="field-label">📦 제품명 (필수)</label>
+          <input class="field-input" id="mp-product" placeholder="예: 클리어 어성초 수분 진정 크림">
+        </div>
+        <div class="field-group">
+          <label class="field-label">🎯 타겟 고객</label>
+          <input class="field-input" id="mp-target" placeholder="예: 좁쌀 여드름이 고민인 20대 수부지">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">✨ 핵심 소구 포인트</label>
+        <input class="field-input" id="mp-point" placeholder="예: 끈적임 없음, 진정 즉효, 비건 인증, 피부 장벽 강화">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">🗓️ 캠페인 목적</label>
+        <select class="field-select" id="mp-goal">
+          <option value="awareness">브랜드 인지도 확산</option>
+          <option value="conversion">구매 전환 유도</option>
+          <option value="engagement">팔로워 인게이지먼트</option>
+          <option value="ugc">UGC 챌린지 / 바이럴</option>
+          <option value="launch">신제품 런칭 홍보</option>
+        </select>
+      </div>
+
+      <!-- ★ 미디어 업로드 존 ★ -->
+      <div class="field-group">
+        <label class="field-label">🖼️ 사진 업로드 (선택)</label>
+        <div class="media-upload-zone" id="upload-zone"
+             onclick="document.getElementById('media-file-input').click()"
+             ondragover="onDragOver(event)"
+             ondragleave="onDragLeave(event)"
+             ondrop="onDrop(event)">
+          <input type="file" id="media-file-input" multiple
+                 accept="image/jpeg,image/png,image/gif,image/webp"
+                 onchange="onFileSelect(event)">
+          <div id="upload-placeholder">
+            <div class="upload-icon">📂</div>
+            <div class="upload-text">클릭하거나 파일을 드래그하세요</div>
+            <div class="upload-sub">이미지 (JPG·PNG·GIF·WEBP) — 최대 5개, 파일당 20MB</div>
+          </div>
+        </div>
+
+        <!-- 미리보기 그리드 -->
+        <div class="preview-grid" id="media-preview-grid"></div>
+
+        <!-- 파일 있을 때 분석 상태 표시 -->
+        <div id="media-status" style="display:none; margin-top:10px; font-size:12.5px; color:var(--klear-green-dark); display:flex; align-items:center; gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span id="media-status-text"></span>
+        </div>
+      </div>
+
+      <!-- 플랫폼 선택 후 미디어 스펙 가이드 -->
+      <div class="field-group">
+        <label class="field-label">📱 생성할 플랫폼 선택</label>
+        <div class="platform-grid">
+          <label class="platform-check">
+            <input type="checkbox" value="instagram" checked onchange="updateGuide()">
+            <span>📸</span> Instagram
+          </label>
+          <label class="platform-check">
+            <input type="checkbox" value="tiktok" checked onchange="updateGuide()">
+            <span>▶️</span> TikTok
+          </label>
+          <label class="platform-check">
+            <input type="checkbox" value="youtube" onchange="updateGuide()">
+            <span>🎬</span> YouTube Shorts
+          </label>
+          <label class="platform-check">
+            <input type="checkbox" value="twitter" onchange="updateGuide()">
+            <span>🐦</span> X (Twitter)
+          </label>
+          <label class="platform-check">
+            <input type="checkbox" value="blog" onchange="updateGuide()">
+            <span>📝</span> 블로그 요약
+          </label>
+        </div>
+
+        <!-- 플랫폼별 미디어 스펙 가이드 테이블 -->
+        <div class="platform-media-guide" id="media-guide">
+          <div class="guide-row guide-header">
+            <div>플랫폼</div>
+            <div>권장 이미지 사이즈</div>
+            <div>권장 영상 사이즈 / 길이</div>
+          </div>
+          <!-- JS가 동적으로 채움 -->
+        </div>
+      </div>
+
+      <button class="btn-generate" id="mp-btn" onclick="generateMultiPost()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        선택한 플랫폼 게시물 일괄 생성
+      </button>
+    </div>
+
+    <div class="result-outer" id="mp-result">
+      <div class="c-card" style="padding:0; overflow:hidden;">
+        <div style="padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+          <span style="font-weight:600; font-size:14px;">✅ 생성 완료</span>
+          <span style="font-size:11px; color:var(--text-muted);" id="mp-time"></span>
+        </div>
+        <div class="result-tabs" id="mp-result-tabs"></div>
+        <div id="mp-result-panels" style="padding:16px 20px;"></div>
+        <div style="padding:0 20px 20px;">
+          <div class="n8n-row">
+            <button class="btn-secondary" onclick="sendMultiToN8n()">📤 n8n으로 자동 발행</button>
+            <button class="btn-secondary" onclick="copyAllPosts()">📋 전체 복사</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ TAB 2: 광고 스토리보드 ══════════ -->
+  <div class="tab-pane" id="pane-storyboard">
+    <div class="c-card">
+      <h3>🎬 광고 스토리보드 자동 제작</h3>
+      <p class="subtitle">제품과 광고 목표를 입력하면 씬별 비주얼 방향·스크립트·촬영 가이드를 자동 생성합니다.</p>
+
+      <div class="section-grid-2">
+        <div class="field-group">
+          <label class="field-label">📦 제품명 (필수)</label>
+          <input class="field-input" id="sb-product" placeholder="예: 클리어 세럼 앰플">
+        </div>
+        <div class="field-group">
+          <label class="field-label">🎞️ 광고 포맷</label>
+          <select class="field-select" id="sb-format">
+            <option value="15sec">15초 쇼츠 / 릴스</option>
+            <option value="30sec">30초 숏폼 광고</option>
+            <option value="60sec">60초 유튜브 광고</option>
+            <option value="tiktok_trend">TikTok 트렌드 챌린지</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-grid-2">
+        <div class="field-group">
+          <label class="field-label">🎯 타겟 고객</label>
+          <input class="field-input" id="sb-target" placeholder="예: 20-35세 직장여성, 피부 장벽 관심">
+        </div>
+        <div class="field-group">
+          <label class="field-label">🎨 광고 톤 & 무드</label>
+          <select class="field-select" id="sb-tone">
+            <option value="clean_minimal">Clean & Minimal (깔끔·미니멀)</option>
+            <option value="trendy_fun">Trendy & Fun (트렌디·발랄)</option>
+            <option value="luxe_premium">Luxe & Premium (럭셔리·프리미엄)</option>
+            <option value="science_trust">Science & Trust (성분 신뢰)</option>
+            <option value="emotional_story">Emotional Story (감성 스토리)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-grid-2">
+        <div class="field-group">
+          <label class="field-label">💡 핵심 메시지</label>
+          <input class="field-input" id="sb-message" placeholder="예: 3일 만에 피부 장벽 회복">
+        </div>
+        <div class="field-group">
+          <label class="field-label">🔢 씬(Scene) 수</label>
+          <select class="field-select" id="sb-scenes">
+            <option value="3">3 씬</option>
+            <option value="4" selected>4 씬</option>
+            <option value="5">5 씬</option>
+            <option value="6">6 씬</option>
+          </select>
+        </div>
+      </div>
+
+      <details>
+        <summary>
+          <div class="advanced-toggle">⚙️ AI 지시사항 커스텀 (클릭)</div>
+        </summary>
+        <div class="advanced-area">
+          <label class="field-label">스토리보드 작성 지침</label>
+          <textarea class="field-textarea" id="sb-prompt" rows="5">각 씬마다 다음 4가지를 반드시 포함하세요:
+- 비주얼: 화면에 보이는 장면 묘사 (배경, 조명, 피사체)
+- 나레이션/자막: 화면에 표시되거나 읽히는 텍스트
+- 카메라: 촬영 기법 (클로즈업, 슬로모션, 드론샷 등)
+- 감정 포인트: 시청자가 이 씬에서 느껴야 할 감정</textarea>
+        </div>
+      </details>
+
+      <button class="btn-generate" id="sb-btn" onclick="generateStoryboard()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        광고 스토리보드 자동 생성
+      </button>
+    </div>
+
+    <div class="result-outer" id="sb-result">
+      <div class="c-card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+          <h3 style="margin:0;">🎬 광고 스토리보드 완성</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-secondary" onclick="copyStoryboard()">📋 복사</button>
+            <button class="btn-secondary" onclick="exportStoryboard()">⬇️ .md 내보내기</button>
+          </div>
+        </div>
+        <div id="sb-concept" style="background:var(--klear-green-pale); border:1px solid var(--klear-green-light); border-radius:var(--radius-sm); padding:14px 18px; margin-bottom:20px;"></div>
+        <div class="scenes-grid" id="sb-scenes-output"></div>
+        <div id="sb-postprod" style="margin-top:20px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 18px;"></div>
+        <div class="n8n-row" style="margin-top:16px;">
+          <button class="btn-secondary" onclick="sendStoryboardToN8n()">📤 n8n으로 전송</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// ★ SNS 바로가기 링크 — 나중에 여기만 수정하세요 ★
+// ══════════════════════════════════════════════════════════════════════
+const SNS_LINKS = {
+  instagram: 'https://www.instagram.com/klear_beauty_official?igsh=MXBzMm9qeG1ib2kwNg%3D%3D&utm_source=qr',
+  facebook:  'https://www.facebook.com/profile.php?id=61585032502028&rdid=fOM7OD9pga4TcRoW&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1CPSA92yip%2F#',
+  twitter:   'https://x.com/Klear111',
+};
+document.addEventListener('DOMContentLoaded', () => {
+  const ig = document.getElementById('sns-link-instagram');
+  const fb = document.getElementById('sns-link-facebook');
+  const tw = document.getElementById('sns-link-twitter');
+  if (ig) ig.href = SNS_LINKS.instagram;
+  if (fb) fb.href = SNS_LINKS.facebook;
+  if (tw) tw.href = SNS_LINKS.twitter;
+});
+// ── Tab 전환 ──────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.intel-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('pane-' + name).classList.add('active');
+}
+
+// ── 버튼 로딩 상태 ──────────────────────────────────────────────────
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  if (loading) {
+    btn.disabled = true;
+    btn.dataset.orig = btn.innerHTML;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 0.9s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> AI가 작성 중...';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = btn.dataset.orig || '';
+  }
+}
+
+const PLATFORM_META = {
+  instagram: { icon: '📸', label: 'Instagram' },
+  tiktok:    { icon: '▶️', label: 'TikTok' },
+  youtube:   { icon: '🎬', label: 'YouTube Shorts' },
+  twitter:   { icon: '🐦', label: 'X (Twitter)' },
+  blog:      { icon: '📝', label: '블로그 요약' },
+};
+
+// 플랫폼별 미디어 스펙
+const PLATFORM_SPECS = {
+  instagram: { name: 'Instagram', icon: '📸', img: '정사각 1080×1080 (1:1) / 세로 1080×1350 (4:5)', vid: '1080×1920 (9:16) · 최대 60초 (릴스 90초)' },
+  tiktok:    { name: 'TikTok',    icon: '▶️', img: '세로 1080×1920 (9:16) 권장',                     vid: '1080×1920 (9:16) · 최대 10분' },
+  youtube:   { name: 'YouTube Shorts', icon: '🎬', img: '썸네일 1280×720 (16:9)',                  vid: '1080×1920 (9:16) · 최대 60초' },
+  twitter:   { name: 'X (Twitter)', icon: '🐦', img: '가로 1600×900 (16:9) / 최대 4장',              vid: '1280×720 · 최대 140초 (2분 20초)' },
+  blog:      { name: '블로그',    icon: '📝', img: '가로 1200×630 (OG 이미지) 권장',                  vid: '임베드 링크 또는 썸네일 사용' },
+};
+
+let multiResults  = {};
+let storyboardData = null;
+// 업로드된 미디어 저장소
+let uploadedMediaList = []; // [{type:'image'|'video', base64, mediaType, name, thumbBase64}]
+
+// ══════════════════════════════════════════════════════════════════════
+// 미디어 업로드 / 드래그앤드롭
+// ══════════════════════════════════════════════════════════════════════
+function onDragOver(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.add('drag-over');
+}
+function onDragLeave(e) {
+  document.getElementById('upload-zone').classList.remove('drag-over');
+}
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-over');
+  processFiles([...e.dataTransfer.files]);
+}
+function onFileSelect(e) {
+  processFiles([...e.target.files]);
+  e.target.value = ''; // 같은 파일 재선택 허용
+}
+
+async function processFiles(files) {
+  const MAX_FILES = 5;
+  const MAX_MB    = 20;
+
+  for (const file of files) {
+    if (uploadedMediaList.length >= MAX_FILES) {
+      alert(`최대 ${MAX_FILES}개까지 업로드할 수 있습니다.`); break;
+    }
+    if (file.size > MAX_MB * 1024 * 1024) {
+      alert(`${file.name}: 파일 크기가 ${MAX_MB}MB를 초과합니다.`); continue;
+    }
+
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    if (!isImage && !isVideo) { alert(`${file.name}: 지원하지 않는 파일 형식입니다.`); continue; }
+
+    if (isImage) {
+      const base64 = await fileToBase64(file);
+      uploadedMediaList.push({ type: 'image', base64, mediaType: file.type, name: file.name });
+      addImagePreview(base64, file.name, uploadedMediaList.length - 1);
+    } else {
+      // 동영상: 썸네일 추출 후 저장
+      const thumbBase64 = await extractVideoThumbnail(file);
+      const videoBase64 = await fileToBase64(file);
+      uploadedMediaList.push({ type: 'video', base64: videoBase64, mediaType: file.type, name: file.name, thumbBase64 });
+      addVideoPreview(thumbBase64, file.name, uploadedMediaList.length - 1);
+    }
+  }
+
+  refreshUploadZone();
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function extractVideoThumbnail(file) {
+  return new Promise(resolve => {
+    const video  = document.createElement('video');
+    const canvas = document.createElement('canvas');
+    const url    = URL.createObjectURL(file);
+    video.src    = url;
+    video.muted  = true;
+    video.currentTime = 0.5;
+    video.onloadeddata = () => {
+      canvas.width  = video.videoWidth  || 320;
+      canvas.height = video.videoHeight || 180;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      const thumb = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+      URL.revokeObjectURL(url);
+      resolve(thumb);
+    };
+    video.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+  });
+}
+
+function addImagePreview(base64, name, idx) {
+  const grid = document.getElementById('media-preview-grid');
+  const item = document.createElement('div');
+  item.className = 'preview-item';
+  item.id = `preview-item-${idx}`;
+  item.innerHTML = `
+    <img src="data:image/jpeg;base64,${base64}" alt="${escHtml(name)}">
+    <span class="file-type-badge">IMG</span>
+    <button class="remove-btn" onclick="removeMedia(${idx})">✕</button>`;
+  grid.appendChild(item);
+}
+
+function addVideoPreview(thumbBase64, name, idx) {
+  const grid = document.getElementById('media-preview-grid');
+  const item = document.createElement('div');
+  item.className = 'preview-item';
+  item.id = `preview-item-${idx}`;
+  const imgSrc = thumbBase64
+    ? `data:image/jpeg;base64,${thumbBase64}`
+    : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><rect fill="%23222" width="60" height="60"/><polygon fill="white" points="22,15 48,30 22,45"/></svg>';
+  item.innerHTML = `
+    <img src="${imgSrc}" alt="${escHtml(name)}">
+    <span class="file-type-badge">VID</span>
+    <button class="remove-btn" onclick="removeMedia(${idx})">✕</button>`;
+  grid.appendChild(item);
+}
+
+function removeMedia(idx) {
+  uploadedMediaList.splice(idx, 1);
+  // 미리보기 전체 재렌더
+  const grid = document.getElementById('media-preview-grid');
+  grid.innerHTML = '';
+  uploadedMediaList.forEach((m, i) => {
+    if (m.type === 'image') addImagePreview(m.base64, m.name, i);
+    else addVideoPreview(m.thumbBase64, m.name, i);
+  });
+  refreshUploadZone();
+}
+
+function refreshUploadZone() {
+  const zone   = document.getElementById('upload-zone');
+  const holder = document.getElementById('upload-placeholder');
+  const status = document.getElementById('media-status');
+  const count  = uploadedMediaList.length;
+
+  if (count > 0) {
+    zone.classList.add('has-files');
+    holder.style.display = 'none';
+    status.style.display = 'flex';
+    const imgs = uploadedMediaList.filter(m => m.type === 'image').length;
+    const vids = uploadedMediaList.filter(m => m.type === 'video').length;
+    document.getElementById('media-status-text').textContent =
+      `${count}개 업로드됨 (이미지 ${imgs}개 · 동영상 ${vids}개) — AI가 비주얼을 분석해 콘텐츠에 반영합니다`;
+  } else {
+    zone.classList.remove('has-files');
+    holder.style.display = 'block';
+    status.style.display = 'none';
+  }
+}
+
+// ── 플랫폼 선택 시 미디어 스펙 가이드 업데이트 ──────────────────────
+function updateGuide() {
+  const selected = [...document.querySelectorAll('#pane-multi .platform-check input:checked')].map(i => i.value);
+  const guide    = document.getElementById('media-guide');
+
+  if (selected.length === 0) { guide.classList.remove('visible'); return; }
+
+  guide.classList.add('visible');
+  const rows = selected.map(p => {
+    const s = PLATFORM_SPECS[p];
+    if (!s) return '';
+    return `<div class="guide-row">
+      <div class="guide-platform">${s.icon} ${s.name}</div>
+      <div class="guide-spec">${s.img}</div>
+      <div class="guide-spec">${s.vid}</div>
+    </div>`;
+  }).join('');
+
+  guide.innerHTML = `
+    <div class="guide-row guide-header">
+      <div>플랫폼</div>
+      <div>권장 이미지 사이즈</div>
+      <div>권장 영상 사이즈 / 길이</div>
+    </div>${rows}`;
+}
+// 초기 가이드 표시
+updateGuide();
+
+// ══════════════════════════════════════════════════════════════════════
+// TAB 1: 멀티플랫폼 게시물 생성 (미디어 Vision 포함)
+// ══════════════════════════════════════════════════════════════════════
+async function generateMultiPost() {
+  const product = document.getElementById('mp-product').value.trim();
+  if (!product) { alert('제품명을 입력해주세요!'); return; }
+
+  const platforms = [...document.querySelectorAll('#pane-multi .platform-check input:checked')].map(i => i.value);
+  if (!platforms.length) { alert('플랫폼을 하나 이상 선택하세요!'); return; }
+
+  setLoading('mp-btn', true);
+  document.getElementById('mp-result').style.display = 'none';
+
+  // 미디어 데이터 준비 (이미지만 Vision에 사용, 동영상은 썸네일로 대체)
+  const mediaForApi = uploadedMediaList.map(m => ({
+    type:      m.type,
+    base64:    m.type === 'image' ? m.base64 : (m.thumbBase64 || null),
+    mediaType: m.type === 'image' ? m.mediaType : 'image/jpeg',
+    name:      m.name,
+  })).filter(m => m.base64); // 썸네일 없는 영상은 제외
+
+  try {
+    const res = await fetch('/api/generate-multipost', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        product_name:    product,
+        target_audience: document.getElementById('mp-target').value.trim(),
+        key_point:       document.getElementById('mp-point').value.trim(),
+        goal:            document.getElementById('mp-goal').value,
+        platforms,
+        media:           mediaForApi,  // ← 미디어 데이터 전송
+      }),
+    });
+    const data = await res.json();
+    if (!data.success) { alert('오류: ' + (data.error || '알 수 없는 오류')); return; }
+
+    multiResults = data.results;
+    renderMultiResults(data.results, platforms, data.vision_used);
+    document.getElementById('mp-time').textContent = data.generated_at;
+    document.getElementById('mp-result').style.display = 'block';
+    // Instagram 플랫폼 포함 시 해시태그 자동 로드
+    if (platforms.includes('instagram')) { loadMPHashtags(); }
+    // 모든 플랫폼 패널에 해시태그 로드
+    platforms.forEach(p => loadHashtagsForPanel(p));
+  } catch (e) { alert('서버 오류: ' + e.message); }
+  finally { setLoading('mp-btn', false); }
+}
+
+function renderMultiResults(results, platforms, visionUsed) {
+  const tabsEl   = document.getElementById('mp-result-tabs');
+  const panelsEl = document.getElementById('mp-result-panels');
+  tabsEl.innerHTML   = '';
+  panelsEl.innerHTML = '';
+
+  platforms.forEach((p, i) => {
+    const meta = PLATFORM_META[p] || { icon: '📄', label: p };
+    const text = results[p] || '내용 없음';
+
+    // ── 탭 버튼 ──
+    const tab = document.createElement('div');
+    tab.className = 'result-tab' + (i === 0 ? ' active' : '');
+    tab.textContent = meta.icon + ' ' + meta.label;
+    tab.onclick = () => {
+      tabsEl.querySelectorAll('.result-tab').forEach(t => t.classList.remove('active'));
+      panelsEl.querySelectorAll('.result-panel').forEach(pp => pp.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('mp-panel-' + p).classList.add('active');
+    };
+    tabsEl.appendChild(tab);
+
+    // ── 패널 ──
+    const visionBadge = visionUsed
+      ? `<span class="vision-badge" style="margin-left:6px; font-size:10.5px; padding:3px 8px;">👁 Vision 반영</span>` : '';
+
+    const panel = document.createElement('div');
+    panel.id = 'mp-panel-' + p;
+    panel.className = 'result-panel' + (i === 0 ? ' active' : '');
+    panel.innerHTML = `
+      <!-- 🔥 트렌드 해시태그 패널 (모든 플랫폼) -->
+      <div style="margin-bottom:14px; padding:13px 16px; background:#fff5f8; border:1px solid #fccdd9; border-radius:8px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:9px;">
+          <span style="font-size:12.5px; font-weight:600; color:#E1306C;">🔥 실시간 트렌드 해시태그 TOP 10</span>
+          <div style="display:flex; gap:7px;">
+            <button class="btn-secondary" onclick="addHashtags('${p}')" style="background:#E1306C; color:white; border:none; font-size:11.5px; padding:4px 10px;">➕ 추가</button>
+            <button class="btn-secondary" onclick="resetHashtags('${p}')" style="font-size:11.5px; padding:4px 10px;">🔄 초기화</button>
+          </div>
+        </div>
+        <div id="hashtag-container-${p}" style="display:flex; flex-wrap:wrap; gap:7px;">
+          <span style="color:#999; font-size:12.5px;">로딩 중...</span>
+        </div>
+      </div>
+
+      <!-- 생성된 게시물 텍스트 (직접 수정 가능) -->
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+        <span style="font-size:12px; color:var(--text-muted);">${meta.icon} ${meta.label} 최적화${visionBadge}</span>
+        <button class="btn-secondary" style="font-size:11.5px; padding:5px 12px;" onclick="copyText('mp-content-${p}')">📋 복사</button>
+      </div>
+      <div class="result-box" style="padding:0; margin-bottom:0;">
+        <div id="mp-content-${p}"
+             contenteditable="true"
+             style="white-space:pre-wrap; line-height:1.75; padding:14px 16px; outline:none; min-height:80px; cursor:text;"
+        >${escHtml(text)}</div>
+      </div>
+
+      <!-- ★ 미디어 생성 섹션 ★ -->
+      <div class="media-gen-section">
+        <div class="media-gen-title">🎨 AI 미디어 생성</div>
+        <div class="media-gen-btns" style="align-items:center;">
+          <select class="style-select" id="style-${p}">
+            <option value="photorealistic">📷 사진 리얼</option>
+            <option value="illustration">🎨 일러스트</option>
+            <option value="minimal">⬜ 미니멀</option>
+          </select>
+          <button class="btn-gen-img" id="img-btn-${p}" onclick="generatePlatformImage('${p}')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            DALL-E 3 이미지 생성
+          </button>
+        </div>
+
+        <!-- 이미지 결과 -->
+        <div id="img-result-${p}"></div>
+
+        <!-- n8n 발행 행 -->
+        <div class="publish-row" id="publish-row-${p}" style="display:none;">
+          <button class="btn-publish" onclick="publishToN8n('${p}')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+            n8n으로 자동 발행
+          </button>
+          <button class="btn-secondary" style="font-size:12px;" onclick="downloadAllMedia('${p}')">⬇️ 미디어 다운로드</button>
+        </div>
+      </div>
+      `;
+    panelsEl.appendChild(panel);
+  });
+}
+
+async function copyAllPosts() {
+  const all = Object.entries(multiResults)
+    .map(([p, t]) => `=== ${PLATFORM_META[p]?.label || p} ===\n${t}`).join('\n\n');
+  await navigator.clipboard.writeText(all);
+  alert('전체 게시물이 클립보드에 복사되었습니다!');
+}
+
+async function sendMultiToN8n() {
+  const url = 'https://kimsw1498.app.n8n.cloud/webhook-test/2cc2d646-fc1a-4a53-9093-26b57ec10dcd';
+  try {
+    const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ results: multiResults }) });
+    alert(res.ok ? '🎉 n8n 전송 성공!' : '전송 실패 — n8n URL 확인하세요.');
+  } catch { alert('n8n 연결 실패.'); }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// TAB 2: 스토리보드
+// ══════════════════════════════════════════════════════════════════════
+async function generateStoryboard() {
+  const product = document.getElementById('sb-product').value.trim();
+  if (!product) { alert('제품명을 입력해주세요!'); return; }
+
+  setLoading('sb-btn', true);
+  document.getElementById('sb-result').style.display = 'none';
+
+  try {
+    const res  = await fetch('/api/generate-storyboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        product_name:    product,
+        target_audience: document.getElementById('sb-target').value.trim(),
+        ad_format:       document.getElementById('sb-format').value,
+        tone:            document.getElementById('sb-tone').value,
+        message:         document.getElementById('sb-message').value.trim(),
+        scene_count:     parseInt(document.getElementById('sb-scenes').value),
+        custom_prompt:   document.getElementById('sb-prompt').value.trim(),
+      }),
+    });
+    const data = await res.json();
+    if (!data.success) { alert('오류: ' + (data.error || '알 수 없는 오류')); return; }
+    storyboardData = data;
+    renderStoryboard(data);
+    document.getElementById('sb-result').style.display = 'block';
+  } catch (e) { alert('서버 오류: ' + e.message); }
+  finally { setLoading('sb-btn', false); }
+}
+
+function renderStoryboard(data) {
+  document.getElementById('sb-concept').innerHTML = `
+    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--klear-green-dark); margin-bottom:6px;">📋 광고 콘셉트 요약</div>
+    <div style="font-size:13.5px; line-height:1.6; white-space:pre-wrap;">${escHtml(data.concept || '')}</div>`;
+
+  const scenesEl = document.getElementById('sb-scenes-output');
+  scenesEl.innerHTML = '';
+  (data.scenes || []).forEach((scene, i) => {
+    const card = document.createElement('div');
+    card.className = 'scene-card';
+    card.innerHTML = `
+      <div class="scene-num">${i + 1}</div>
+      <div style="font-weight:600; font-size:14px; margin-bottom:8px;">${escHtml(scene.title || '씬 ' + (i+1))}</div>
+      <div class="scene-row">
+        <div>
+          <div class="scene-field-label">🎥 비주얼</div>
+          <div class="scene-field-value">${escHtml(scene.visual || '')}</div>
+        </div>
+        <div>
+          <div class="scene-field-label">🎙️ 나레이션 / 자막</div>
+          <div class="scene-field-value">${escHtml(scene.narration || '')}</div>
+        </div>
+        <div>
+          <div class="scene-field-label">📷 카메라 &amp; 감정</div>
+          <div class="scene-field-value">${escHtml(scene.camera || '')}<br><em style="color:var(--text-muted); font-size:12px;">${escHtml(scene.emotion || '')}</em></div>
+        </div>
+      </div>`;
+    scenesEl.appendChild(card);
+  });
+
+  document.getElementById('sb-postprod').innerHTML = `
+    <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-muted); margin-bottom:8px;">🎨 편집 & 후처리 가이드</div>
+    <div style="font-size:13px; line-height:1.6; white-space:pre-wrap;">${escHtml(data.postproduction || '')}</div>`;
+}
+
+async function copyStoryboard() {
+  if (!storyboardData) return;
+  let text = '【광고 콘셉트】\n' + (storyboardData.concept || '') + '\n\n';
+  (storyboardData.scenes || []).forEach((s, i) => {
+    text += `【씬 ${i+1}: ${s.title}】\n비주얼: ${s.visual}\n나레이션: ${s.narration}\n카메라: ${s.camera}\n감정: ${s.emotion}\n\n`;
+  });
+  text += '【후처리 가이드】\n' + (storyboardData.postproduction || '');
+  await navigator.clipboard.writeText(text);
+  alert('스토리보드가 복사되었습니다!');
+}
+
+function exportStoryboard() {
+  if (!storyboardData) return;
+  let md = `# 광고 스토리보드\n\n## 콘셉트\n${storyboardData.concept || ''}\n\n`;
+  (storyboardData.scenes || []).forEach((s, i) => {
+    md += `## 씬 ${i+1}: ${s.title}\n- **비주얼:** ${s.visual}\n- **나레이션:** ${s.narration}\n- **카메라:** ${s.camera}\n- **감정:** ${s.emotion}\n\n`;
+  });
+  md += `## 후처리 가이드\n${storyboardData.postproduction || ''}`;
+  const blob = new Blob([md], { type:'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'storyboard.md';
+  a.click();
+}
+
+async function sendStoryboardToN8n() {
+  const url = 'https://kimsw1498.app.n8n.cloud/webhook-test/2cc2d646-fc1a-4a53-9093-26b57ec10dcd';
+  try {
+    const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(storyboardData) });
+    alert(res.ok ? '🎉 n8n 전송 성공!' : '전송 실패.');
+  } catch { alert('n8n 연결 실패.'); }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════
+// 플랫폼별 트렌드 해시태그
+// ══════════════════════════════════════════════════════════════════════
+let _hashtagCache = null; // API 한 번만 호출 후 캐싱
+
+async function loadHashtagsForPanel(platform) {
+  const container = document.getElementById('hashtag-container-' + platform);
+  if (!container) return;
+
+  // 캐시 있으면 재사용
+  if (_hashtagCache) {
+    renderHashtagChips(container, platform, _hashtagCache);
+    return;
+  }
+
+  try {
+    const res  = await fetch('/api/trend/instagram', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({})
+    });
+    const data = await res.json();
+    if (data.success && data.keywords && data.keywords.length > 0) {
+      _hashtagCache = data.keywords.slice(0, 10);
+      renderHashtagChips(container, platform, _hashtagCache);
+    } else {
+      container.innerHTML = '<span style="color:#999; font-size:12.5px;">트렌드 해시태그를 불러오지 못했습니다.</span>';
+    }
+  } catch (e) {
+    container.innerHTML = '<span style="color:#999; font-size:12.5px;">해시태그 로드 실패.</span>';
+  }
+}
+
+function renderHashtagChips(container, platform, keywords) {
+  container.innerHTML = '';
+  keywords.forEach((item, i) => {
+    const chip = document.createElement('div');
+    chip.dataset.tag = item.keyword;
+    chip.style.cssText = 'display:flex; align-items:center; gap:6px; background:#f9f9f9; padding:5px 11px; border-radius:20px; border:1px solid #eee; font-size:12.5px; cursor:pointer; transition:all 0.15s;';
+    chip.innerHTML = `<span style="min-width:17px; height:17px; background:#E1306C; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700;">${i+1}</span><span class="chip-label" style="font-weight:600; color:#333;">${escHtml(item.keyword)}</span>`;
+    chip.addEventListener('click', () => {
+      if (chip.classList.contains('selected')) {
+        chip.classList.remove('selected');
+        chip.style.background = '#f9f9f9'; chip.style.border = '1px solid #eee';
+        chip.querySelector('.chip-label').style.color = '#333';
+      } else {
+        chip.classList.add('selected');
+        chip.style.background = '#ffe8f0'; chip.style.border = '1px solid #E1306C';
+        chip.querySelector('.chip-label').style.color = '#E1306C';
+      }
+    });
+    container.appendChild(chip);
+  });
+}
+
+function addHashtags(platform) {
+  const container = document.getElementById('hashtag-container-' + platform);
+  const selected  = container ? container.querySelectorAll('div.selected') : [];
+  if (!selected.length) { alert('추가할 해시태그를 선택해주세요!'); return; }
+  const tags    = Array.from(selected).map(c => '#' + c.dataset.tag).join(' ');
+  const content = document.getElementById('mp-content-' + platform);
+  if (content) {
+    content.textContent = content.textContent.trimEnd() + '\n' + tags;
+    showToast('✅ 해시태그 추가 완료!', 'success');
+  }
+}
+
+function resetHashtags(platform) {
+  const container = document.getElementById('hashtag-container-' + platform);
+  if (!container) return;
+  container.querySelectorAll('div.selected').forEach(c => {
+    c.classList.remove('selected');
+    c.style.background = '#f9f9f9'; c.style.border = '1px solid #eee';
+    c.querySelector('.chip-label').style.color = '#333';
+  });
+}
+
+// 구버전 호환용 (혹시 남은 호출 있을 경우)
+async function loadMPHashtags() {}
+function addMPHashtags() {}
+function resetMPHashtags() {}
+
+// ══════════════════════════════════════════════════════════════════════
+// 플랫폼별 AI 이미지 생성 (DALL-E 3)
+// ══════════════════════════════════════════════════════════════════════
+
+// 플랫폼별 생성된 이미지 URL 저장 (영상 생성 시 사용)
+const generatedImages = {};  // { platform: imageUrl }
+const generatedVideos = {};  // { platform: videoUrl }
+let videoPollingTimers = {}; // { platform: intervalId }
+
+async function generatePlatformImage(platform) {
+  const product  = document.getElementById('mp-product').value.trim() || 'K-beauty product';
+  const postText = document.getElementById('mp-content-' + platform)?.textContent || '';
+  const style    = document.getElementById('style-' + platform)?.value || 'photorealistic';
+
+  const btn      = document.getElementById('img-btn-' + platform);
+  const resultEl = document.getElementById('img-result-' + platform);
+
+  btn.disabled  = true;
+  btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="animation:spin 0.9s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Imagen 3 생성 중...`;
+
+  resultEl.innerHTML = `
+    <div class="gen-image-wrap" style="min-height:180px; display:flex; align-items:center; justify-content:center; background:var(--surface-2);">
+      <div style="text-align:center; color:var(--text-muted);">
+        <div style="font-size:28px; margin-bottom:10px;">🎨</div>
+        <div style="font-size:13px;">Imagen 3가 이미지를 생성하고 있습니다...<br><span style="font-size:11px; opacity:0.7;">보통 10~20초 소요됩니다</span></div>
+      </div>
+    </div>`;
+
+  try {
+    const res  = await fetch('/api/generate-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ platform, product_name: product, post_text: postText, style }),
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      resultEl.innerHTML = `<div style="padding:14px; background:#fff3cd; border:1px solid #fde68a; border-radius:var(--radius-sm); color:#92400e; font-size:12.5px; margin-top:12px;">⚠️ ${escHtml(data.error)}</div>`;
+      return;
+    }
+
+    // ★ base64 이미지 저장 (영상 생성 시 전달)
+    generatedImages[platform] = data.image_b64;
+
+    const imgSrc = `data:image/png;base64,${data.image_b64}`;
+
+    resultEl.innerHTML = `
+      <div class="gen-image-wrap" style="margin-top:12px;">
+        <img src="${imgSrc}" alt="${escHtml(PLATFORM_META[platform]?.label || platform)} 생성 이미지">
+        <div class="gen-image-actions">
+          <button class="btn-secondary" style="font-size:12px;" onclick="downloadBase64Image('${platform}')">⬇️ 다운로드</button>
+          <button class="btn-secondary" style="font-size:12px;" onclick="regenerateImage('${platform}')">🔄 재생성</button>
+        </div>
+        <div class="gen-image-meta">
+          📐 비율: ${escHtml(data.aspect)} &nbsp;·&nbsp; 🕐 ${escHtml(data.generated_at)}<br>
+          <span style="opacity:0.7;">프롬프트: ${escHtml((data.imagen_prompt || '').substring(0, 120))}...</span>
+        </div>
+      </div>`;
+
+    // 영상 생성 버튼 활성화
+    const vidBtn = document.getElementById('vid-btn-' + platform);
+    if (vidBtn) { vidBtn.disabled = false; vidBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg> Veo 2 영상 생성`; }
+
+    showPublishRow(platform);
+
+  } catch (e) {
+    resultEl.innerHTML = `<div style="padding:14px; background:#fee2e2; border-radius:var(--radius-sm); color:#991b1b; font-size:12.5px; margin-top:12px;">⚠️ 서버 오류: ${escHtml(e.message)}</div>`;
+  } finally {
+    btn.disabled  = false;
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Imagen 3 이미지 재생성`;
+  }
+}
+
+function regenerateImage(platform) { generatePlatformImage(platform); }
+
+function downloadBase64Image(platform) {
+  const b64 = generatedImages[platform];
+  if (!b64) return;
+  const a = document.createElement('a');
+  a.href = `data:image/png;base64,${b64}`;
+  a.download = `klear_${platform}_${Date.now()}.png`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// 플랫폼별 AI 영상 생성 (Google Veo 2)
+// ══════════════════════════════════════════════════════════════════════
+async function generatePlatformVideo(platform) {
+  const imageB64 = generatedImages[platform];
+  if (!imageB64) {
+    alert('먼저 이미지를 생성해주세요. Imagen 3 이미지 생성 버튼을 눌러주세요.');
+    return;
+  }
+
+  const product  = document.getElementById('mp-product').value.trim() || 'K-beauty product';
+  const postText = document.getElementById('mp-content-' + platform)?.textContent || '';
+  const duration = parseInt(document.getElementById('dur-' + platform)?.value || '5');
+
+  const btn      = document.getElementById('vid-btn-' + platform);
+  const resultEl = document.getElementById('vid-result-' + platform);
+
+  btn.disabled  = true;
+  btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="animation:spin 0.9s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> 영상 생성 요청 중...`;
+
+  try {
+    const res  = await fetch('/api/generate-video', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ platform, product_name: product, post_text: postText, image_b64: imageB64, duration }),
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      resultEl.innerHTML = `
+        <div style="margin-top:12px; padding:14px; background:#fff3cd; border:1px solid #fde68a; border-radius:var(--radius-sm); color:#92400e; font-size:12.5px;">
+          ⚠️ ${escHtml(data.error)}
+          ${data.error.includes('GOOGLE_API_KEY') ? `<br><br><strong>📌 설정 방법:</strong><br>1. <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a> 에서 무료 발급<br>2. <code>.env</code> 파일에 <code>GOOGLE_API_KEY=AIza...</code> 추가<br>3. 서버 재시작` : ''}
+        </div>`;
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg> Vertex AI 영상 재시도`;
+      return;
+    }
+
+    // Veo 2는 operation_name으로 폴링
+    startVideoPolling(platform, data.operation_name, duration, resultEl, btn);
+
+  } catch (e) {
+    resultEl.innerHTML = `<div style="margin-top:12px; padding:14px; background:#fee2e2; border-radius:var(--radius-sm); color:#991b1b; font-size:12.5px;">⚠️ ${escHtml(e.message)}</div>`;
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg> Vertex AI 영상 재시도`;
+  }
+}
+
+function startVideoPolling(platform, operationName, duration, resultEl, btn) {
+  let elapsed  = 0;
+  const estimated = duration >= 15 ? 240 : duration <= 5 ? 60 : 120;
+
+  resultEl.innerHTML = `
+    <div class="video-status-bar" style="margin-top:12px;">
+      <div class="video-status-head">
+        <span>🎬 Vertex AI Veo 2가 15초 영상을 생성하고 있습니다...</span>
+        <span id="vid-eta-${platform}" style="font-size:11px; font-weight:400;">약 ${estimated}초 소요</span>
+      </div>
+      <div class="video-progress">
+        <div class="video-progress-fill" id="vid-prog-${platform}" style="width:2%"></div>
+      </div>
+      <div style="padding:10px 14px; font-size:11px; color:var(--text-muted);">
+        Operation: <code style="font-family:monospace; font-size:10px;">${escHtml(operationName.slice(-24))}</code>
+      </div>
+    </div>`;
+
+  if (videoPollingTimers[platform]) clearInterval(videoPollingTimers[platform]);
+
+  videoPollingTimers[platform] = setInterval(async () => {
+    elapsed += 6;
+    const pct = Math.min(95, Math.round((elapsed / estimated) * 100));
+    const prog = document.getElementById('vid-prog-' + platform);
+    const eta  = document.getElementById('vid-eta-' + platform);
+    if (prog) prog.style.width = pct + '%';
+    if (eta)  eta.textContent  = `${elapsed}s 경과 / 약 ${estimated}s`;
+
+    try {
+      const encodedName = encodeURIComponent(operationName);
+      const res  = await fetch('/api/video-status/' + encodedName);
+      const data = await res.json();
+
+      if (data.status === 'succeeded' && data.video_b64) {
+        clearInterval(videoPollingTimers[platform]);
+        generatedVideos[platform] = data.video_b64;
+
+        const videoSrc = `data:video/mp4;base64,${data.video_b64}`;
+        resultEl.innerHTML = `
+          <div class="gen-video-wrap" style="margin-top:12px;">
+            <video controls autoplay loop muted playsinline>
+              <source src="${videoSrc}" type="video/mp4">
+            </video>
+            <div class="gen-video-actions">
+              <button class="btn-secondary" style="font-size:12px;" onclick="downloadBase64Video('${platform}')">⬇️ 영상 다운로드</button>
+            </div>
+          </div>`;
+
+        btn.disabled  = false;
+        btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg> Vertex AI 영상 재생성`;
+        showPublishRow(platform);
+
+      } else if (data.status === 'failed') {
+        clearInterval(videoPollingTimers[platform]);
+        resultEl.innerHTML = `<div style="margin-top:12px; padding:14px; background:#fee2e2; border-radius:var(--radius-sm); color:#991b1b; font-size:12.5px;">⚠️ 영상 생성 실패: ${escHtml(data.error || '알 수 없는 오류')}</div>`;
+        btn.disabled  = false;
+        btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg> Vertex AI 영상 재생성`;
+      }
+    } catch (e) { console.warn('폴링 오류:', e); }
+  }, 6000);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// n8n 발행 & 다운로드
+// ══════════════════════════════════════════════════════════════════════
+function showPublishRow(platform) {
+  const row = document.getElementById('publish-row-' + platform);
+  if (row) row.style.display = 'flex';
+}
+
+async function publishToN8n(platform) {
+  const N8N_URL  = 'https://kimsw1498.app.n8n.cloud/webhook-test/2cc2d646-fc1a-4a53-9093-26b57ec10dcd';
+  const postText = document.getElementById('mp-content-' + platform)?.textContent || '';
+  const product  = document.getElementById('mp-product').value.trim();
+
+  const payload = {
+    platform:   platform,
+    product:    product,
+    post_text:  postText,
+    image_url:  generatedImages[platform] || null,
+    video_url:  generatedVideos[platform] || null,
+    has_image:  !!generatedImages[platform],
+    has_video:  !!generatedVideos[platform],
+    timestamp:  new Date().toISOString(),
+  };
+
+  const btn = document.querySelector(`#publish-row-${platform} .btn-publish`);
+  if (btn) { btn.disabled = true; btn.textContent = '📤 전송 중...'; }
+
+  try {
+    const res = await fetch(N8N_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      alert(`🎉 ${PLATFORM_META[platform]?.label || platform} n8n 전송 성공!\n게시물 텍스트 + ${payload.has_video ? '영상' : payload.has_image ? '이미지' : '미디어 없음'} 포함`);
+    } else {
+      alert('전송 실패 — n8n 웹훅 URL을 확인하세요.');
+    }
+  } catch {
+    alert('n8n 연결 실패.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg> n8n으로 자동 발행`; }
+  }
+}
+
+async function downloadAllMedia(platform) {
+  const imgB64 = generatedImages[platform];
+  const vidB64 = generatedVideos[platform];
+  if (!imgB64 && !vidB64) { alert('다운로드할 미디어가 없습니다.'); return; }
+  if (imgB64) downloadBase64Image(platform);
+  if (vidB64) setTimeout(() => downloadBase64Video(platform), 500);
+}
+
+function downloadBase64Video(platform) {
+  const b64 = generatedVideos[platform];
+  if (!b64) return;
+  const a = document.createElement('a');
+  a.href = `data:video/mp4;base64,${b64}`;
+  a.download = `klear_${platform}_${Date.now()}.mp4`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+// ── 유틸 ─────────────────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+async function copyText(id) {
+  await navigator.clipboard.writeText(document.getElementById(id).textContent);
+  alert('복사 완료!');
+}
+</script>
+{% endblock %}

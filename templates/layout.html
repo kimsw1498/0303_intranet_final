@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Klear · K-Beauty Market Intelligence{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/klear.css') }}">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a9 9 0 0 1 9 9c0 4.5-3.5 9-9 12C6.5 20 3 15.5 3 11a9 9 0 0 1 9-9z"/>
+        <circle cx="12" cy="11" r="3"/>
+      </svg>
+    </div>
+    <span class="logo-text"><span>K</span>lear</span>
+  </div>
+
+  <span class="nav-section-label">NAVIGATION</span>
+
+  <a class="nav-item {% if active_page == 'dashboard' %}active{% endif %}" href="{{ url_for('index') }}">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    대시보드
+  </a>
+
+  <a class="nav-item {% if active_page == 'intelligence' %}active{% endif %}" href="{{ url_for('intelligence') }}">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    인텔리전스
+    <span class="nav-badge">AI</span>
+  </a>
+
+  <a class="nav-item {% if active_page == 'outreach' %}active{% endif %}" href="{{ url_for('outreach') }}">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    아웃리치
+    <span class="nav-badge">7</span>
+  </a>
+
+  <a class="nav-item {% if active_page == 'content' %}active{% endif %}" href="{{ url_for('content') }}">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    콘텐츠 생성
+  </a>
+
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="user-avatar">YB</div>
+      <div>
+        <div class="user-name">마케팅 팀</div>
+        <div class="user-role">Senior Manager</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div style="display:flex; align-items:center; gap:14px;">
+      <span class="topbar-title" id="topbar-title">{% block topbar_title %}<strong>K-Beauty</strong> Market Intelligence{% endblock %}</span>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <div class="status-dot"></div>
+        <span class="live-label">LIVE</span>
+      </div>
+      <span style="font-size:12px; color:var(--text-muted); font-family:'DM Mono',monospace;" id="clock"></span>
+    </div>
+    <div class="topbar-actions">
+      <a href="/cdn-cgi/l/email-protection#64" title="메일 보내기" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);transition:all 0.15s;text-decoration:none;" onmouseover="this.style.background='var(--surface-2)';this.style.color='var(--text-primary)'" onmouseout="this.style.background='var(--surface)';this.style.color='var(--text-muted)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+      </a>
+      <a href="#" title="Slack" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);transition:all 0.15s;text-decoration:none;" onmouseover="this.style.background='var(--surface-2)';this.style.color='var(--text-primary)'" onmouseout="this.style.background='var(--surface)';this.style.color='var(--text-muted)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="9" width="4" height="7" rx="2"/><rect x="9" y="2" width="4" height="7" rx="2" transform="rotate(90 9 2)"/><rect x="18" y="9" width="4" height="7" rx="2" transform="rotate(180 18 9)"/><rect x="9" y="18" width="4" height="7" rx="2" transform="rotate(270 9 18)"/></svg>
+      </a>
+      <a href="#" title="캘린더" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);transition:all 0.15s;text-decoration:none;" onmouseover="this.style.background='var(--surface-2)';this.style.color='var(--text-primary)'" onmouseout="this.style.background='var(--surface)';this.style.color='var(--text-muted)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </a>
+      <a href="#" title="노션" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);transition:all 0.15s;text-decoration:none;" onmouseover="this.style.background='var(--surface-2)';this.style.color='var(--text-primary)'" onmouseout="this.style.background='var(--surface)';this.style.color='var(--text-muted)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+      </a>
+      <button class="btn btn-ghost" style="padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;" title="알림">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      {% block topbar_action %}
+      <button class="btn btn-primary" onclick="refreshData()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        데이터 갱신
+      </button>
+      {% endblock %}
+    </div>
+  </header>
+
+  <!-- PAGE CONTENT -->
+  {% block content %}{% endblock %}
+
+</main>
+
+<!-- COMMON JS -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+function updateClock() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const d = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());
+  const t = pad(now.getHours())+':'+pad(now.getMinutes())+' KST';
+  document.getElementById('clock').textContent = d+' · '+t;
+}
+updateClock();
+setInterval(updateClock, 60000);
+
+function refreshData() {
+  const btn = event.currentTarget;
+  const origHTML = btn.innerHTML;
+  btn.innerHTML = '갱신중...';
+  if (typeof loadPageData === 'function') {
+    loadPageData().finally(() => setTimeout(() => { btn.innerHTML = origHTML; }, 500));
+  } else {
+    setTimeout(() => { btn.innerHTML = origHTML; }, 500);
+  }
+}
+
+const _spinStyle = document.createElement('style');
+_spinStyle.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+document.head.appendChild(_spinStyle);
+
+const _toastStyle = document.createElement('style');
+_toastStyle.textContent = '#toast-container { position:fixed; bottom:70px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; pointer-events:none; } .klear-toast { padding:12px 18px; border-radius:8px; font-size:13px; font-weight:500; color:#fff; box-shadow:0 4px 14px rgba(0,0,0,0.22); opacity:0; transform:translateY(10px); transition:opacity 0.25s ease, transform 0.25s ease; max-width:300px; line-height:1.4; pointer-events:auto; } .klear-toast.show { opacity:1; transform:translateY(0); } .klear-toast.success { background:#2e7d32; } .klear-toast.error { background:#c62828; } .klear-toast.info { background:#1565c0; } #gen-indicator { position:fixed; bottom:24px; right:24px; z-index:9998; background:#333; color:#fff; padding:9px 16px; border-radius:20px; font-size:13px; font-weight:500; box-shadow:0 4px 12px rgba(0,0,0,0.2); display:none; align-items:center; gap:8px; }';
+document.head.appendChild(_toastStyle);
+
+function showToast(message, type) {
+  type = type || 'success';
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'klear-toast ' + type;
+  toast.textContent = message;
+  container.appendChild(toast);
+  requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3500);
+}
+
+let _pollInterval = null;
+function _startPolling(taskId) {
+  const indicator = document.getElementById('gen-indicator');
+  if (indicator) indicator.style.display = 'flex';
+  if (_pollInterval) clearInterval(_pollInterval);
+  _pollInterval = setInterval(async () => {
+    try {
+      const res = await fetch('/api/task-status/' + taskId);
+      const data = await res.json();
+      if (data.status === 'done') {
+        clearInterval(_pollInterval); _pollInterval = null;
+        localStorage.removeItem('generatingTaskId');
+        if (indicator) indicator.style.display = 'none';
+        showToast('✨ 콘텐츠 생성이 완료되었습니다!', 'success');
+        window.dispatchEvent(new CustomEvent('contentGenerated', { detail: data }));
+      } else if (data.status === 'error') {
+        clearInterval(_pollInterval); _pollInterval = null;
+        localStorage.removeItem('generatingTaskId');
+        if (indicator) indicator.style.display = 'none';
+        showToast('생성 중 오류가 발생했습니다: ' + (data.error || ''), 'error');
+        window.dispatchEvent(new CustomEvent('contentGeneratedError', { detail: data }));
+      }
+    } catch (e) {}
+  }, 3000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const savedTaskId = localStorage.getItem('generatingTaskId');
+  if (savedTaskId) { _startPolling(savedTaskId); }
+});
+</script>
+
+<div id="toast-container"></div>
+<div id="gen-indicator">⏳ 콘텐츠 생성 중...</div>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

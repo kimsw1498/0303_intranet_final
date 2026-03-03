@@ -1,0 +1,667 @@
+{% extends "layout.html" %}
+
+{% block title %}Klear · 대시보드{% endblock %}
+
+{% block topbar_title %}<strong>K-Beauty</strong> Market Intelligence{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ══════════════════════════════════════════════════
+   대시보드 전용 스타일
+══════════════════════════════════════════════════ */
+
+.ws-title {
+  font-size: 15px; font-weight: 700; color: var(--text-primary);
+  margin: 0 0 14px; display: flex; align-items: center; gap: 8px; letter-spacing: -.2px;
+}
+.ws-title::before {
+  content:''; display:block; width:3px; height:17px;
+  background:var(--klear-green); border-radius:2px; flex-shrink:0;
+}
+
+/* 하단 3열 */
+.lower-grid-3 {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px; margin-bottom: 14px;
+  align-items: stretch;
+}
+/* 세 칸 고정 높이: module-header(72)+body(flex-1)+footer(44) = 카드 전체 */
+.lower-grid-3 .module-card { height: 460px; display:flex; flex-direction:column; }
+.lower-grid-3 .module-body { flex:1; overflow:hidden; display:flex; flex-direction:column; }
+
+/* ═══ 해시태그 위젯 ═══ */
+/* hash-list: 남은 공간 전부 차지 */
+.hash-list { display:flex; flex-direction:column; gap:3px; flex:1; min-height:0; }
+/* hash-item: flex:1로 10개가 균등 분배 — overflow:hidden 필수 */
+.hash-item {
+  display:flex; align-items:center; gap:7px;
+  padding:0 8px; background:var(--surface-2);
+  border:1px solid var(--border-soft); border-radius:var(--radius-sm);
+  cursor:pointer; transition:border-color .15s, background .15s;
+  flex:1 1 0; min-height:0; overflow:hidden;
+}
+.hash-item:hover { border-color:var(--klear-green-light); background:var(--klear-green-pale); }
+.hash-num {
+  font-family:'DM Mono',monospace; font-size:10px; font-weight:700;
+  color:var(--text-muted); width:16px; text-align:center; flex-shrink:0;
+}
+.hash-item:nth-child(1) .hash-num { color:#f5a623; }
+.hash-item:nth-child(2) .hash-num { color:#9b9b9b; }
+.hash-item:nth-child(3) .hash-num { color:#c47a3a; }
+.hash-tag  { flex:1; font-size:10.5px; font-weight:600; color:var(--text-primary);
+             white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hash-tag .h { color:var(--klear-green-dark); }
+.hash-score {
+  font-size:9px; padding:1px 5px; border-radius:4px; flex-shrink:0;
+  background:var(--klear-green-pale); color:var(--klear-green-dark);
+  font-family:'DM Mono',monospace; font-weight:600;
+}
+
+
+/* ═══ 아웃리치 파이프라인 ═══ */
+/* 이번 주 발송 — 1줄 인라인 스트립 */
+.outreach-kpi-box {
+  background: var(--klear-green-pale);
+  border: 1px solid rgba(156,180,72,.35);
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 6px; flex-shrink: 0;
+}
+.okpi-label { font-size:10px; font-weight:600; color:var(--klear-green-dark); opacity:.8; }
+.okpi-val-row { display:flex; align-items:baseline; gap:3px; }
+.okpi-val  { font-size:16px; font-weight:800; color:var(--klear-green-dark);
+             font-family:'DM Mono',monospace; line-height:1; }
+.okpi-unit { font-size:10px; font-weight:700; color:var(--klear-green-dark); opacity:.7; }
+
+/* 탭 필터 */
+.pipe-tabs {
+  display:flex; gap:3px; margin-bottom:6px; flex-wrap:wrap; flex-shrink:0;
+}
+.pipe-tab {
+  padding:3px 9px; font-size:10.5px; font-weight:600;
+  border:1px solid var(--border); border-radius:20px;
+  background:var(--surface); color:var(--text-muted);
+  cursor:pointer; transition:all .15s;
+}
+.pipe-tab.active {
+  background:var(--klear-green); color:#fff; border-color:var(--klear-green);
+}
+.pipe-tab:hover:not(.active) { border-color:var(--klear-green-light); color:var(--klear-green-dark); }
+
+.pipe-section-title {
+  font-size:10px; font-weight:700; color:var(--text-muted);
+  text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px; flex-shrink:0;
+}
+.pipe-list { display:flex; flex-direction:column; gap:3px; flex:1; min-height:0; overflow-y:auto; }
+.pipe-item {
+  display:flex; align-items:center; gap:6px;
+  padding:5px 7px; background:var(--surface-2);
+  border:1px solid var(--border-soft); border-radius:6px;
+  flex-shrink:0;
+}
+.pipe-icon {
+  width:24px; height:24px; border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; flex-shrink:0;
+}
+.pic-creator { background:#f0f5ff; }
+.pic-expo    { background:#f0fff4; }
+.pic-channel { background:#fff8f0; }
+/* 플랫폼별 실제 색상 */
+.pic-tiktok    { background:#010101; }
+.pic-instagram { background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
+.pic-youtube   { background:#ff0000; }
+.pic-reddit    { background:#ff4500; }
+.pipe-name   { flex:1; font-size:10.5px; font-weight:600; color:var(--text-primary); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pipe-type   { font-size:9px; color:var(--text-muted); flex-shrink:0; }
+.pipe-time   { font-size:9px; color:var(--text-muted); font-family:'DM Mono',monospace; flex-shrink:0; }
+
+/* 상태 뱃지 */
+.social-status {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:10px; font-weight:600; padding:2px 7px; border-radius:10px;
+}
+.social-status.idle    { background:var(--surface-2); color:var(--text-muted); }
+.social-status.loading { background:#fff3cd; color:#856404; }
+.social-status.success { background:var(--klear-green-pale); color:var(--klear-green-dark); }
+.social-status.error   { background:#f8d7da; color:#721c24; }
+
+/* ═══ AI 콘텐츠 위젯 ═══ */
+.content-chips {
+  display:flex; gap:6px; margin-bottom:13px; flex-wrap:wrap;
+}
+.content-chip {
+  display:flex; align-items:center; gap:5px;
+  padding:5px 10px;
+  background:var(--surface-2); border:1px solid var(--border-soft); border-radius:20px;
+  font-size:11px; font-weight:500; color:var(--text-secondary);
+}
+.content-chip .chip-num {
+  font-size:13px; font-weight:800; color:var(--text-primary);
+  font-family:'DM Mono',monospace;
+}
+
+.content-list { display:flex; flex-direction:column; gap:5px; }
+.content-item {
+  display:flex; align-items:flex-start; gap:8px;
+  padding:7px 9px; background:var(--surface-2);
+  border:1px solid var(--border-soft); border-radius:8px;
+}
+.content-doc-icon {
+  width:26px; height:26px; border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; flex-shrink:0; margin-top:1px;
+}
+.doc-board  { background:#edf3ff; }
+.doc-post   { background:#fff0f5; }
+.doc-script { background:#f0fff4; }
+.doc-ad     { background:#fff8e1; }
+.content-item-body { flex:1; min-width:0; }
+.content-badge {
+  font-size:9px; font-weight:700; padding:1px 5px; border-radius:4px;
+  margin-bottom:3px; display:inline-block;
+}
+.b-board  { background:#edf3ff; color:#3b6fd4; }
+.b-post   { background:#fff0f5; color:#c44; }
+.b-script { background:#f0fff4; color:#2a8; }
+.b-ad     { background:#fff8e1; color:#b7820a; }
+.content-item-title { font-size:11px; font-weight:500; color:var(--text-primary); line-height:1.4; }
+
+/* ── Klear 공식 스토어 링크 배너 ── */
+.klear-store-banner {
+  margin: 65px 0 80px;
+  display: flex;
+  justify-content: center;
+}
+.klear-store-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: var(--klear-green-pale);
+  border: 1.5px solid rgba(156,180,72,.35);
+  border-radius: 30px;
+  color: var(--klear-green-dark);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: .2px;
+  transition: background .18s, border-color .18s, box-shadow .18s;
+  cursor: pointer;
+}
+.klear-store-link:hover {
+  background: rgba(156,180,72,.22);
+  border-color: rgba(156,180,72,.6);
+  box-shadow: 0 2px 10px rgba(156,180,72,.18);
+  text-decoration: none;
+  color: var(--klear-green-dark);
+}
+.klear-store-link .store-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+.klear-store-link .store-badge {
+  font-size: 9.5px;
+  font-weight: 600;
+  background: rgba(156,180,72,.25);
+  border: 1px solid rgba(156,180,72,.3);
+  border-radius: 10px;
+  padding: 1px 6px;
+  color: var(--klear-green-dark);
+  opacity: .8;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+
+  <!-- ── 대제목 ── -->
+  <div class="ws-title">이번 주 마케팅 워크스페이스 현황</div>
+
+  <!-- ── KPI 카드 4개 ── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">금주 트렌드 탐지</div>
+      <div class="stat-value" id="kpi-trends">247</div>
+      <div class="stat-change up">실시간 수집 시 자동 누적</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">신규 타겟 발굴</div>
+      <div class="stat-value" id="kpi-influencers">83</div>
+      <div class="stat-change up">크리에이터 도출 시 누적</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">파트너십 제안 완료</div>
+      <div class="stat-value" id="kpi-mails">28</div>
+      <div class="stat-change up">메일·스펙시트 발송 시 갱신</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">콘텐츠 & 시나리오 생성</div>
+      <div class="stat-value" id="kpi-content">14</div>
+      <div class="stat-change up">콘텐츠 작업 시 누적</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       하단 3열
+  ══════════════════════════════════════════════ -->
+  <div class="lower-grid-3">
+
+    <!-- ① 실시간 핫 해시태그 -->
+    <div class="module-card">
+      <div class="module-header">
+        <div style="display:flex;gap:9px;align-items:flex-start;">
+          <div class="module-icon-wrap" style="background:linear-gradient(135deg,var(--klear-green),var(--klear-green-dark));">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+          </div>
+          <div>
+            <div class="module-title">금주 핫 해시태그</div>
+            <div class="module-subtitle">종합 SNS 핫 해시태그 순위</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="module-body" style="padding:8px 14px;">
+
+        <!-- 해시태그 랭킹 리스트 -->
+        <div class="hash-list" id="hash-list"></div>
+
+      </div>
+      <div class="module-footer">
+        <a class="footer-link" href="/intelligence">인텔리전스 모듈 열기 →</a>
+        <span class="footer-timestamp" id="hash-ts">기본 데이터 표시 중</span>
+      </div>
+    </div>
+
+    <!-- ② 아웃리치 파이프라인 -->
+    <div class="module-card">
+      <div class="module-header">
+        <div style="display:flex;gap:9px;align-items:flex-start;">
+          <div class="module-icon-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="module-title">아웃리치 파이프라인</div>
+            <div class="module-subtitle">이번 주 제안서 및 메일 발송</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="module-body" style="padding:8px 12px;overflow:hidden;display:flex;flex-direction:column;">
+
+        <!-- 이번 주 발송 수 — 1줄 스트립 -->
+        <div class="outreach-kpi-box">
+          <span class="okpi-label">이번 주 제안서 · 메일 발송</span>
+          <div class="okpi-val-row">
+            <span class="okpi-val" id="mail-total">14</span>
+            <span class="okpi-unit">건</span>
+          </div>
+        </div>
+
+        <!-- 탭 필터: 협업 제안서 / 참여 신청서 / 입점 신청서 -->
+        <div class="pipe-tabs">
+          <div class="pipe-tab active" id="ptab-all"      onclick="setPipeTab('all')">전체</div>
+          <div class="pipe-tab"        id="ptab-creator"  onclick="setPipeTab('creator')">🎯 협업 제안서</div>
+          <div class="pipe-tab"        id="ptab-expo"     onclick="setPipeTab('expo')">🎪 참여 신청서</div>
+          <div class="pipe-tab"        id="ptab-channel"  onclick="setPipeTab('channel')">🏪 입점 신청서</div>
+        </div>
+
+        <div class="pipe-section-title" id="pipe-section-label">최근 발송 내역 — 전체</div>
+        <div class="pipe-list" id="pipe-list"></div>
+
+      </div>
+      <div class="module-footer">
+        <a class="footer-link" href="/outreach">아웃리치 모듈 열기 →</a>
+        <span class="footer-timestamp" id="pipe-ts">Sync: --:-- KST</span>
+      </div>
+    </div>
+
+    <!-- ③ 최근 생성된 AI 콘텐츠 -->
+    <div class="module-card">
+      <div class="module-header">
+        <div style="display:flex;gap:9px;align-items:flex-start;">
+          <div class="module-icon-wrap" style="background:linear-gradient(135deg,#f09433,#dc2743);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <div>
+            <div class="module-title">최근 생성된 AI 콘텐츠</div>
+            <div class="module-subtitle">이번 주 작업 요약</div>
+          </div>
+        </div>
+        <span class="module-tag tag-orange">AI 생성</span>
+      </div>
+      <div class="module-body" style="padding:12px 14px;overflow-y:auto;">
+
+        <!-- 요약 칩 (INIT_CONT 6건 기준: SNS게시글2 영상기획안2 스크립트1 광고문구1) -->
+        <div class="content-chips">
+          <div class="content-chip">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            SNS 게시글 <span class="chip-num" id="cnt-post">2</span>
+          </div>
+          <div class="content-chip">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            영상 기획안 <span class="chip-num" id="cnt-board">2</span>
+          </div>
+          <div class="content-chip">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            스크립트 <span class="chip-num" id="cnt-script">1</span>
+          </div>
+          <div class="content-chip">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            광고 문구 <span class="chip-num" id="cnt-ad">1</span>
+          </div>
+        </div>
+
+        <div class="pipe-section-title">최근 작업물</div>
+        <div class="content-list" id="content-list"></div>
+
+      </div>
+      <div class="module-footer">
+        <a class="footer-link" href="/content">콘텐츠 모듈 열기 →</a>
+        <span class="footer-timestamp" id="content-ts">Generated: --:-- KST</span>
+      </div>
+    </div>
+
+  </div><!-- /lower-grid-3 -->
+  <!-- ── Klear 공식 스토어 링크 ── -->
+  <div class="klear-store-banner">
+    <a class="klear-store-link" href="#" id="klear-store-btn"
+       title="Klear 공식 스토어"
+       onclick="handleStoreClick(event)">
+      <span class="store-icon">🌐</span>
+      Klear 공식 스토어 보기
+    </a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ════════════════════════════════════════════════════
+   LocalStorage 키
+════════════════════════════════════════════════════ */
+/* ── 플랫폼별 실제 SVG 아이콘 ── */
+const PLAT_SVG = {
+  TikTok: `<svg viewBox="0 0 24 24" fill="white" width="14" height="14"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.2 8.2 0 0 0 4.78 1.52V6.73a4.85 4.85 0 0 1-1.01-.04z"/></svg>`,
+  Instagram: `<svg viewBox="0 0 24 24" fill="white" width="14" height="14"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>`,
+  YouTube: `<svg viewBox="0 0 24 24" fill="white" width="14" height="14"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`,
+  Reddit: `<svg viewBox="0 0 20 20" fill="white" width="14" height="14"><circle cx="10" cy="10" r="10"/><path d="M16.67 10a1.46 1.46 0 0 0-2.47-1 7.12 7.12 0 0 0-3.85-1.23l.65-3.08 2.13.45a1 1 0 1 0 1-.97 1 1 0 0 0-.96.66l-2.38-.5a.16.16 0 0 0-.19.12l-.73 3.32a7.14 7.14 0 0 0-3.82 1.23 1.46 1.46 0 1 0-1.61 2.39 2.9 2.9 0 0 0 0 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.9 2.9 0 0 0 0-.44 1.46 1.46 0 0 0 .57-1.39zM7.27 11a1 1 0 1 1 1 1 1 1 0 0 1-1-1zm5.58 2.71a3.58 3.58 0 0 1-2.85.86 3.58 3.58 0 0 1-2.85-.86.28.28 0 0 1 .38-.38 3.27 3.27 0 0 0 2.47.66 3.27 3.27 0 0 0 2.47-.66.28.28 0 0 1 .38.38zm-.18-1.71a1 1 0 1 1 1-1 1 1 0 0 1-1 1z" fill="#ff4500"/></svg>`,
+};
+
+function getPlatIcon(platform) {
+  const p = (platform||'TikTok');
+  const svg = PLAT_SVG[p] || PLAT_SVG.TikTok;
+  const cls = { TikTok:'pic-tiktok', Instagram:'pic-instagram', YouTube:'pic-youtube', Reddit:'pic-reddit' }[p] || 'pic-creator';
+  return { svg, cls };
+}
+
+const K = {
+  TRENDS : 'klear_stat_trends',
+  INFL   : 'klear_stat_influencers',
+  MAILS  : 'klear_stat_mails',
+  CONT   : 'klear_stat_content',
+  POST   : 'klear_cnt_post',
+  SCRIPT : 'klear_cnt_script',
+  BOARD  : 'klear_cnt_board',
+  RMAILS : 'klear_recent_mails',
+  RCONT  : 'klear_recent_content',
+  AD     : 'klear_cnt_ad',
+};
+const K_ALL = Object.values(K);
+
+function lg(k, d) { try { const v=localStorage.getItem(k); return v!==null?JSON.parse(v):d; } catch{ return d; } }
+function ls(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch{} }
+
+/* 초기값 */
+const INIT_NUMS = { [K.TRENDS]:247, [K.INFL]:83, [K.MAILS]:16, [K.CONT]:6, [K.POST]:2, [K.SCRIPT]:1, [K.BOARD]:2 };
+Object.entries(INIT_NUMS).forEach(([k,v])=>{ if(localStorage.getItem(k)===null) ls(k,v); });
+
+/* ── 데이터 버전 관리: 버전이 다르면 강제 초기화 ── */
+const DATA_VER = 'v2025_16mails';
+if(localStorage.getItem('klear_data_ver') !== DATA_VER) {
+  localStorage.removeItem(K.RMAILS);
+  localStorage.removeItem(K.MAILS);
+  localStorage.setItem('klear_data_ver', DATA_VER);
+}
+
+/* 기본 발송 내역 16건 (creator 6 / expo 4 / channel 6) */
+const INIT_MAILS = [
+  // ── 협업 제안서 (creator) — 6건 ──
+  { platform:'TikTok',    ic:'pic-tiktok',    name:'@kennedy_linn · 틱톡 스킨케어 협업',    type:'크리에이터', subtype:'creator', time:'15:44' },
+  { platform:'Instagram', ic:'pic-instagram', name:'@labmuffinbeauty · 인스타 K뷰티 협업',  type:'크리에이터', subtype:'creator', time:'14:21' },
+  { platform:'YouTube',   ic:'pic-youtube',   name:'@glowwithava · 선세럼 유튜브 리뷰',     type:'크리에이터', subtype:'creator', time:'13:05' },
+  { platform:'TikTok',    ic:'pic-tiktok',    name:'@skinbysofia · TikTok SPF 콘텐츠',     type:'크리에이터', subtype:'creator', time:'11:38' },
+  { platform:'Instagram', ic:'pic-instagram', name:'@thebeautysnoop · 인스타 루틴 협업',   type:'크리에이터', subtype:'creator', time:'10:12' },
+  { platform:'TikTok',    ic:'pic-tiktok',    name:'@glasskingoals · K뷰티 선세럼 리뷰',   type:'크리에이터', subtype:'creator', time:'09:05' },
+  // ── 참여 신청서 (expo) — 4건 ──
+  { platform:'expo',      ic:'pic-expo',      name:'Cosmoprof NA 2026 — 참여 신청서',       type:'전시회',    subtype:'expo',    time:'09:50' },
+  { platform:'expo',      ic:'pic-expo',      name:'Indie Beauty Expo 2026 — 부스 신청',    type:'전시회',    subtype:'expo',    time:'09:30' },
+  { platform:'expo',      ic:'pic-expo',      name:'Premiere Orlando 2026 — 참여 신청서',   type:'전시회',    subtype:'expo',    time:'어제' },
+  { platform:'expo',      ic:'pic-expo',      name:'Natural Products Expo West 2026',       type:'전시회',    subtype:'expo',    time:'어제' },
+  // ── 입점 신청서 (channel) — 6건 ──
+  { platform:'channel',   ic:'pic-channel',   name:'Ulta Beauty — 입점 제안서',             type:'유통채널',  subtype:'channel', time:'어제' },
+  { platform:'channel',   ic:'pic-channel',   name:'Amazon Vendor Central 스펙 시트',       type:'유통채널',  subtype:'channel', time:'어제' },
+  { platform:'channel',   ic:'pic-channel',   name:'Sephora — K-뷰티 입점 제안서',          type:'유통채널',  subtype:'channel', time:'월요일' },
+  { platform:'channel',   ic:'pic-channel',   name:'Target Beauty 온라인 입점 제안',         type:'유통채널',  subtype:'channel', time:'월요일' },
+  { platform:'channel',   ic:'pic-channel',   name:'Revolve Beauty 온라인 입점 제안서',      type:'유통채널',  subtype:'channel', time:'월요일' },
+  { platform:'channel',   ic:'pic-channel',   name:'Credo Beauty — 클린뷰티 입점 신청',     type:'유통채널',  subtype:'channel', time:'월요일' },
+];
+if(localStorage.getItem(K.RMAILS)===null) ls(K.RMAILS, INIT_MAILS);
+if(localStorage.getItem(K.MAILS)===null)  ls(K.MAILS,  16);
+
+/* 기본 콘텐츠 내역 (Empty State 방지) */
+const INIT_CONT = [
+  { b:'b-board',  bt:'영상 스토리보드', doc:'doc-board',  title:'Klear 선세럼 TikTok 15초 릴스 쇼츠' },
+  { b:'b-post',   bt:'SNS 게시글',     doc:'doc-post',   title:'Instagram — 선세럼 런칭 안내' },
+  { b:'b-post',   bt:'SNS 게시글',     doc:'doc-post',   title:'Facebook — 선세럼 런칭 안내' },
+  { b:'b-board',  bt:'영상 기획안',    doc:'doc-board',  title:'Klear 선세럼 YouTube 30초 광고 기획안' },
+  { b:'b-script', bt:'스크립트',       doc:'doc-script', title:'YouTube 선세럼 리뷰 영상 대본 (3분)' },
+  { b:'b-ad',     bt:'광고 문구',      doc:'doc-ad',     title:'#KlearChallenge UGC 캠페인 카피라이팅' },
+];
+if(localStorage.getItem(K.RCONT)===null) ls(K.RCONT, INIT_CONT);
+
+/* ════════════════════════════════════════════════════
+   KPI 렌더링
+════════════════════════════════════════════════════ */
+function renderKPI() {
+  document.getElementById('kpi-trends').textContent      = lg(K.TRENDS, 247).toLocaleString();
+  document.getElementById('kpi-influencers').textContent = lg(K.INFL,    83).toLocaleString();
+  document.getElementById('kpi-mails').textContent       = lg(K.MAILS,   16).toLocaleString();
+  // 콘텐츠 수치 = 실제 목록 개수와 항상 일치
+  const contTotal = lg(K.RCONT, INIT_CONT).length;
+  document.getElementById('kpi-content').textContent = contTotal.toLocaleString();
+}
+
+/* ════════════════════════════════════════════════════
+   아웃리치 파이프라인 위젯
+════════════════════════════════════════════════════ */
+let _pipeTab = 'all';
+
+const TAB_LABELS = {
+  all:     '최근 발송 내역 — 전체',
+  creator: '최근 발송 내역 — 협업 제안서 (크리에이터)',
+  expo:    '최근 발송 내역 — 참여 신청서 (전시회)',
+  channel: '최근 발송 내역 — 입점 신청서 (유통채널)',
+};
+
+function setPipeTab(tab) {
+  _pipeTab = tab;
+  ['all','creator','expo','channel'].forEach(t => {
+    document.getElementById('ptab-'+t).classList.toggle('active', t===tab);
+  });
+  document.getElementById('pipe-section-label').textContent = TAB_LABELS[tab];
+  renderPipeList();
+}
+
+function renderPipeWidget() {
+  document.getElementById('mail-total').textContent = lg(K.MAILS, 16);
+  renderPipeList();
+  document.getElementById('pipe-ts').textContent = 'Sync: '+nowKST();
+}
+
+function renderPipeList() {
+  // RMAILS가 없거나 subtype 없는 구버전이면 INIT_MAILS 강제 사용
+  let all = lg(K.RMAILS, INIT_MAILS);
+  if (!Array.isArray(all) || all.length === 0 || !all[0].subtype) {
+    all = INIT_MAILS;
+    ls(K.RMAILS, INIT_MAILS);
+  }
+
+  // 탭별 필터링
+  const filtered = (_pipeTab === 'all')
+    ? all
+    : all.filter(function(m){ return (m.subtype || '') === _pipeTab; });
+
+  const show = filtered.slice(0, 20);  // 최대 20건
+
+  if (show.length === 0) {
+    document.getElementById('pipe-list').innerHTML =
+      '<div style="text-align:center;padding:14px 0;font-size:11px;color:var(--text-muted);">해당 항목 없음</div>';
+    return;
+  }
+
+  document.getElementById('pipe-list').innerHTML = show.map(function(m) {
+    var iconHtml, iconCls;
+    if (m.subtype === 'creator') {
+      var pi = getPlatIcon(m.platform);
+      iconHtml = pi.svg; iconCls = pi.cls;
+    } else if (m.subtype === 'expo') {
+      iconHtml = '🎪'; iconCls = 'pic-expo';
+    } else {
+      iconHtml = '<svg viewBox="0 0 24 24" fill="#c47a3a" width="13" height="13"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>';
+      iconCls = 'pic-channel';
+    }
+    return '<div class="pipe-item">'
+      + '<div class="pipe-icon ' + iconCls + '" style="display:flex;align-items:center;justify-content:center;">' + iconHtml + '</div>'
+      + '<div class="pipe-name">' + m.name + '</div>'
+      + '<div class="pipe-type">' + m.type + '</div>'
+      + '<div class="pipe-time">' + m.time + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════════
+   AI 콘텐츠 위젯
+════════════════════════════════════════════════════ */
+function renderContentWidget() {
+  const items = lg(K.RCONT, INIT_CONT).slice(0, 6);
+
+  // 하단 목록 렌더링
+  document.getElementById('content-list').innerHTML = items.map(item=>`
+    <div class="content-item">
+      <div class="content-doc-icon ${item.doc||'doc-post'}">📄</div>
+      <div class="content-item-body">
+        <span class="content-badge ${item.b}">${item.bt}</span>
+        <div class="content-item-title">${item.title}</div>
+      </div>
+    </div>`).join('');
+
+  // 상단 칩: 목록 기반으로 실시간 재계산 (항상 일치)
+  const postCnt  = items.filter(i => i.bt === 'SNS 게시글').length;
+  const boardCnt = items.filter(i => i.bt === '영상 기획안' || i.bt === '영상 스토리보드').length;
+  const scriptCnt= items.filter(i => i.bt === '스크립트').length;
+  const adCnt    = items.filter(i => i.bt === '광고 문구').length;
+
+  document.getElementById('cnt-post').textContent   = postCnt;
+  document.getElementById('cnt-board').textContent  = boardCnt;
+  document.getElementById('cnt-script').textContent = scriptCnt;
+  const adEl = document.getElementById('cnt-ad'); if(adEl) adEl.textContent = adCnt;
+
+  // KPI 콘텐츠 수치도 총 목록 개수와 동기화
+  ls(K.CONT,   lg(K.RCONT, INIT_CONT).length);
+  ls(K.POST,   postCnt);
+  ls(K.BOARD,  boardCnt);
+  ls(K.SCRIPT, scriptCnt);
+  if(K.AD) ls(K.AD, adCnt);
+
+  document.getElementById('content-ts').textContent = 'Generated: '+nowKST();
+}
+
+/* ════════════════════════════════════════════════════
+   해시태그 위젯
+════════════════════════════════════════════════════ */
+const DH = [
+  {tag:'GlassSkin',          s:'98.4'},
+  {tag:'KBeauty',            s:'97.1'},
+  {tag:'SkincareRoutine',    s:'95.8'},
+  {tag:'SkinBarrier',        s:'93.2'},
+  {tag:'SPF',                s:'91.6'},
+  {tag:'SnailMucin',         s:'89.9'},
+  {tag:'GRWM',               s:'88.3'},
+  {tag:'SkincareTok',        s:'86.5'},
+  {tag:'GlowUp',             s:'84.0'},
+  {tag:'KlearSunSerum',      s:'81.7'},
+];
+const medals=['🥇','🥈','🥉'];
+
+function renderHashList(list) {
+  document.getElementById('hash-list').innerHTML = list.map((h,i)=>`
+    <div class="hash-item">
+      <span class="hash-num">${i<3?medals[i]:String(i+1).padStart(2,'0')}</span>
+      <span class="hash-tag"><span class="h">#</span>${h.tag}</span>
+      <span class="hash-score">${h.s}pt</span>
+    </div>`).join('');
+}
+
+
+
+/* ════════════════════════════════════════════════════
+   Storage 이벤트 & 폴링 (다른 탭에서 변경 시 반영)
+════════════════════════════════════════════════════ */
+/* ── 다른 페이지에서 콘텐츠 생성 시 호출하는 전역 함수 ── */
+window.recordContentCreated = function(title, type) {
+  // type: 'SNS 게시글' | '영상 기획안' | '영상 스토리보드' | '스크립트' | '광고 문구'
+  const badgeMap = {
+    'SNS 게시글'    : { b:'b-post',   bt:'SNS 게시글',    doc:'doc-post'   },
+    '영상 기획안'   : { b:'b-board',  bt:'영상 기획안',   doc:'doc-board'  },
+    '영상 스토리보드': { b:'b-board', bt:'영상 스토리보드', doc:'doc-board' },
+    '스크립트'      : { b:'b-script', bt:'스크립트',      doc:'doc-script' },
+    '광고 문구'     : { b:'b-ad',     bt:'광고 문구',     doc:'doc-ad'     },
+  };
+  const info = badgeMap[type] || badgeMap['SNS 게시글'];
+  const list = lg(K.RCONT, INIT_CONT);
+  list.unshift({ ...info, title });
+  ls(K.RCONT, list.slice(0, 20));
+  renderKPI();
+  renderContentWidget();
+};
+
+/* localStorage 변경 감지 (다른 탭에서 수치 변경 시 실시간 반영) */
+window.addEventListener('storage', e => {
+  if(K_ALL.includes(e.key)) { renderKPI(); renderPipeWidget(); renderContentWidget(); }
+});
+setInterval(()=>{ renderKPI(); renderPipeWidget(); renderContentWidget(); }, 5000);
+
+function nowKST() {
+  const d=new Date();
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} KST`;
+}
+
+/* ════════════════════════════════════════════════════
+   초기 렌더링
+════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderKPI();
+  renderPipeWidget();
+  renderContentWidget();
+  renderHashList(DH);
+});
+
+
+
+/* ── 스토어 링크 핸들러 ── */
+// ★ URL 여기만 수정하세요 ★
+const KLEAR_STORE_URL = 'https://klear.store';   // ← 실제 URL로 교체
+
+function handleStoreClick(e) {
+  e.preventDefault();
+  if (KLEAR_STORE_URL) {
+    window.open(KLEAR_STORE_URL, '_blank', 'noopener');
+  }
+}
+</script>
+{% endblock %}

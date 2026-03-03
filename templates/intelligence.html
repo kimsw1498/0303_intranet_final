@@ -1,0 +1,632 @@
+{% extends "layout.html" %}
+
+{% block title %}Klear · 인텔리전스 분석{% endblock %}
+
+{% block topbar_title %}<strong>인텔리전스</strong> · 시장 진입 전략{% endblock %}
+
+{% block content %}
+<div class="intel-page-wrap">
+
+  <div class="intel-page-header" style="display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:8px;">
+    <div class="intel-page-title" style="margin:0;">🔍 인텔리전스 분석</div>
+  </div>
+  <div class="intel-tabs" style="margin-bottom:20px; width:fit-content;">
+    <button class="intel-tab-btn active" onclick="switchIntelTab('market-entry-tab', this)">🌏 국가별 진입 전략</button>
+    <button class="intel-tab-btn" onclick="switchIntelTab('trend-tab', this)">✨ 뷰티 트렌드 키워드</button>
+  </div>
+
+  <!-- ── 탭 1: 국가별 진입 전략 ── -->
+  <div id="market-entry-tab" class="intel-tab-content active">
+    <div class="market-entry-layout">
+
+      <!-- 입력 폼 -->
+      <div class="entry-input-card">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 7.4 11.5 7.7 11.8a.5.5 0 0 0 .6 0C12.6 21.5 20 15.4 20 10a8 8 0 0 0-8-8z"/></svg>
+          분석 조건 설정
+        </h3>
+        <div class="entry-field">
+          <label>진출 국가</label>
+          <input type="text" id="me-country" placeholder="예: 미국, 일본, 베트남" value="미국" />
+          <div class="entry-hint">영어 또는 한국어로 입력하세요</div>
+        </div>
+        <div class="entry-field">
+          <label>분석 항목 선택 <span style="font-size:10.5px;font-weight:400;color:var(--text-muted);">중복 선택 가능</span></label>
+          <div class="category-checks">
+            <label class="check-item"><input type="checkbox" name="category" value="진입 장벽" checked><span class="check-box"></span><span class="check-label">🚧 진입 장벽</span></label>
+            <label class="check-item"><input type="checkbox" name="category" value="수출 규제" checked><span class="check-box"></span><span class="check-label">📋 수출 규제</span></label>
+            <label class="check-item"><input type="checkbox" name="category" value="문화" checked><span class="check-box"></span><span class="check-label">🌏 문화</span></label>
+            <label class="check-item"><input type="checkbox" name="category" value="소비자 트렌드" checked><span class="check-box"></span><span class="check-label">📈 소비자 트렌드</span></label>
+          </div>
+        </div>
+        <button class="btn-analyze" id="btn-analyze" onclick="runMarketEntry()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          분석 시작
+        </button>
+      </div>
+
+      <!-- 결과 카드 -->
+      <div class="entry-result-card" id="result-card">
+        <div class="result-header">
+          <div class="result-header-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            분석 결과
+            <span id="result-tag" class="result-tag" style="display:none"></span>
+          </div>
+          <span class="result-meta" id="result-meta" style="display:none;">분석 전</span>
+        </div>
+        <div class="result-body" id="result-body">
+          <div class="result-empty">
+            <div class="result-empty-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </div>
+            <div style="font-weight:500; font-size:14px; color:var(--text-secondary);">진입 전략을 분석해드립니다</div>
+            <div style="font-size:12.5px; color:var(--text-muted);">국가와 품목을 입력하고 분석 시작 버튼을 클릭하세요</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── 탭 2: 실시간 트렌드 ── -->
+  <div id="trend-tab" class="intel-tab-content">
+    <div class="trend-layout">
+
+      <div class="entry-input-card">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          분석 조건 설정
+        </h3>
+        <div class="entry-field">
+          <label>플랫폼</label>
+          <select id="trend-platform">
+            <option value="전체">📊 All Platforms</option>
+            <option value="TikTok">🎵 TikTok</option>
+            <option value="Instagram">📸 Instagram</option>
+            <option value="YouTube">▶ YouTube</option>
+            <option value="Reddit">🟠 Reddit</option>
+          </select>
+        </div>
+        <button class="btn-analyze" id="btn-trend" onclick="runTrendAnalysis()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          트렌드 분석 시작
+        </button>
+      </div>
+
+      <div class="entry-result-card" id="trend-result-card">
+        <div class="result-header">
+          <div class="result-header-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            실시간 트렌드 분석
+            <span id="trend-result-tag" class="result-tag" style="display:none;"></span>
+          </div>
+          <span class="result-meta" id="trend-result-meta" style="display:none;">분석 전</span>
+        </div>
+        <div class="result-body" id="trend-result-body">
+          <div class="result-empty">
+            <div class="result-empty-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div style="font-weight:500; font-size:14px; color:var(--text-secondary);">실시간 트렌드를 분석해드립니다</div>
+            <div style="font-size:12.5px; color:var(--text-muted);">플랫폼과 카테고리를 선택하고 분석 시작을 클릭하세요</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // ── 탭 전환 ──
+  function switchIntelTab(tabId, btn) {
+    document.querySelectorAll('.intel-tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.intel-tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── 마크다운 렌더 ──
+  function renderMarkdown(md) {
+    return md
+      .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/`(.+?)`/g, '<code>$1</code>')
+      .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+      .replace(/^\- (.+)$/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+      .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/^(?!<[a-z])(.+)$/gm, (m, p) => p ? `<p>${p}</p>` : '')
+      .replace(/<p><\/p>/g, '');
+  }
+
+  // ── 각주 [숫자] → 외부링크 아이콘 ──
+  function renderWithCitations(md, sources) {
+    const rendered = renderMarkdown(md);
+    return rendered.replace(/\[(\d+)\]/g, (match, num) => {
+      const idx = parseInt(num) - 1;
+      const source = sources[idx];
+      if (!source || !source.link) return '';
+      const title = (source.title || '').replace(/"/g, '&quot;');
+      return `<a class="citation-ref" href="${source.link}" target="_blank" rel="noopener noreferrer" title="${title}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
+    });
+  }
+
+  // ── 국가별 진입 전략 분석 ──
+  async function runMarketEntry() {
+    const country = document.getElementById('me-country').value.trim();
+    const item    = "";
+    const selectedCategories = Array.from(
+      document.querySelectorAll('input[name="category"]:checked')
+    ).map(cb => cb.value);
+
+    if (!country) { alert('진출 국가를 입력해주세요.'); return; }
+    if (selectedCategories.length === 0) { alert('분석 항목을 하나 이상 선택해주세요.'); return; }
+
+    const btn  = document.getElementById('btn-analyze');
+    const body = document.getElementById('result-body');
+    const meta = document.getElementById('result-meta');
+    const tag  = document.getElementById('result-tag');
+
+    btn.disabled = true;
+    btn.innerHTML = `<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> 분석 중...`;
+    tag.style.display = 'inline-flex';
+    tag.className = 'result-tag tag-analyzing';
+    tag.textContent = '⏳ 분석 중';
+    meta.textContent = '검색 데이터 수집 중...';
+
+    body.innerHTML = `
+      <div class="spinner-wrap">
+        <div class="spinner"></div>
+        <div>SerpApi로 카테고리별 실시간 데이터 수집 중</div>
+        <div class="spinner-step">[ ${country} · ${selectedCategories.join(' / ')} ]</div>
+      </div>`;
+
+    try {
+      setTimeout(() => {
+        if (btn.disabled) {
+          meta.textContent = 'GPT-4 분석 중...';
+          body.innerHTML = `
+            <div class="spinner-wrap">
+              <div class="spinner"></div>
+              <div>AI가 선택 항목을 분석하고 있습니다...</div>
+              <div class="spinner-step">[ ${selectedCategories.join(' → ')} ]</div>
+            </div>`;
+        }
+      }, 1800);
+
+      const controller = new AbortController();
+      const timeoutId  = setTimeout(() => controller.abort(), 180000);
+
+      const res = await fetch('/api/market-entry', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ target_country: country, target_item: item, selected_categories: selectedCategories }),
+        signal:  controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      const data = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || '분석 실패');
+
+      tag.className = 'result-tag tag-done';
+      tag.textContent = '✅ 분석 완료';
+      // meta hidden
+
+      const debug = data.debug || {};
+      const sources = debug.search_sources || data.search_results || [];
+      body.innerHTML = `<div class="md-output">${renderWithCitations(data.analysis, sources)}</div>`;
+
+    } catch (err) {
+      const isTimeout = err.name === 'AbortError';
+      tag.className = 'result-tag tag-error';
+      tag.textContent = '❌ 오류';
+      meta.textContent = '분석 실패';
+      body.innerHTML = `
+        <div style="padding:20px;">
+          <div style="color:#721c24; background:#f8d7da; border-radius:8px; padding:16px; font-size:13.5px; line-height:1.7;">
+            <strong>${isTimeout ? '⏱ 응답 시간 초과' : '오류 발생'}</strong><br>
+            ${isTimeout ? '분석에 시간이 너무 오래 걸렸습니다. 분석 항목을 줄이거나 다시 시도해주세요.' : err.message.replace(/\n/g, '<br>')}
+          </div>
+          <div style="margin-top:12px; font-size:12px; color:var(--text-muted);">
+            💡 .env 파일에 OPENAI_API_KEY와 SERPAPI_KEY가 설정되어 있는지 확인하세요.
+          </div>
+        </div>`;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> 분석 시작`;
+    }
+  }
+
+  // ── 트렌드 분석 (Reddit → Apify, 나머지 → SerpApi) ──
+  // ── 트렌드 분석 ──
+  async function runTrendAnalysis() {
+    const platform = document.getElementById('trend-platform').value.trim();
+    const btn  = document.getElementById('btn-trend');
+    const body = document.getElementById('trend-result-body');
+    const meta = document.getElementById('trend-result-meta');
+    const tag  = document.getElementById('trend-result-tag');
+
+    btn.disabled = true;
+    btn.innerHTML = `<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> 분석 중...`;
+    tag.style.display = 'inline-flex';
+    tag.className = 'result-tag tag-analyzing';
+    tag.textContent = '⏳ 분석 중';
+
+    // ── 키워드 카드 공통 렌더 함수 ──
+    function renderKeywordCards(keywords, subtitle) {
+      const sourceColors = {
+        tiktok: { bg: '#010101', text: '#fff', label: 'TikTok' },
+        reddit: { bg: '#ff4500', text: '#fff', label: 'Reddit' },
+        both:   { bg: '#9CB448', text: '#fff', label: 'TikTok+Reddit' },
+      };
+      return `
+        <div style="padding: 20px;">
+          <div style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">${subtitle}</div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            ${keywords.map((kw, i) => {
+              const sc = sourceColors[kw.source] || { bg: 'var(--klear-green)', text: '#fff', label: kw.source || '' };
+              return `
+              <div style="
+                background: var(--bg-card, #fff);
+                border: 1px solid var(--border-soft);
+                border-left: 4px solid var(--klear-green, #6aab4f);
+                border-radius: 10px;
+                padding: 14px 18px;
+                display: flex;
+                align-items: flex-start;
+                gap: 14px;
+              ">
+                <div style="
+                  min-width: 28px; height: 28px;
+                  background: var(--klear-green, #6aab4f);
+                  color: white; border-radius: 50%;
+                  display: flex; align-items: center; justify-content: center;
+                  font-size: 13px; font-weight: 700; flex-shrink:0;
+                ">${i + 1}</div>
+                <div style="flex:1;">
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px; flex-wrap:wrap;">
+                    <span style="font-size:15px; font-weight:700; color:var(--text-primary);">${kw.keyword}</span>
+                    <span style="font-size:11px; font-weight:600; background:#fff3e0; color:#e65100; padding:2px 8px; border-radius:20px;">언급 ${kw.mentions}회</span>
+                    ${kw.source ? `<span style="font-size:10px; font-weight:700; background:${sc.bg}; color:${sc.text}; padding:2px 7px; border-radius:20px;">${sc.label}</span>` : ''}
+                  </div>
+                  <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">${kw.summary}</div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }
+
+    // ── 공통 에러/버튼 리셋 헬퍼 ──
+    function _showTrendError(err, tag, meta, body) {
+      const isTimeout = err.name === 'AbortError';
+      tag.className = 'result-tag tag-error';
+      tag.textContent = '❌ 오류';
+      meta.textContent = '분석 실패';
+      body.innerHTML = `
+        <div style="padding:20px;">
+          <div style="color:#721c24; background:#f8d7da; border-radius:8px; padding:16px; font-size:13.5px; line-height:1.7;">
+            <strong>${isTimeout ? '⏱ 응답 시간 초과' : '오류 발생'}</strong><br>
+            ${isTimeout ? 'Apify 수집에 시간이 오래 걸렸습니다. 다시 시도해주세요.' : err.message.replace(/\n/g,'<br>')}
+          </div>
+          <div style="margin-top:12px; font-size:12px; color:var(--text-muted);">
+            💡 .env 파일에 APIFY_API_TOKEN과 OPENAI_API_KEY가 설정되어 있는지 확인하세요.
+          </div>
+        </div>`;
+    }
+    function _resetTrendBtn(btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> 트렌드 분석 시작`;
+    }
+
+    // ── 전체 플랫폼 (4분할 그리드 · Promise.all 병렬 호출) ────────────
+    if (platform === '전체') {
+      meta.textContent = '4개 플랫폼 동시 수집 중...';
+      tag.className = 'result-tag tag-analyzing';
+      tag.textContent = '⏳ 분석 중';
+      body.style.padding = '0';  // 전체 플랫폼: 패딩 제거해서 그리드 꽉 채움
+
+      // 플랫폼 정의
+      const PLATFORMS = [
+        { key: 'tiktok',    label: 'TikTok',    emoji: '🎵', color: '#010101', endpoint: '/api/trend/tiktok',    body: { top_n: 10 } },
+        { key: 'instagram', label: 'Instagram',  emoji: '📸', color: '#E1306C', endpoint: '/api/trend/instagram',  body: {} },
+        { key: 'youtube',   label: 'YouTube',    emoji: '▶',  color: '#FF0000', endpoint: '/api/trend/youtube',    body: {} },
+        { key: 'reddit',    label: 'Reddit',     emoji: '🟠', color: '#FF4500', endpoint: '/api/trend/reddit',     body: {} },
+      ];
+
+      // 스켈레톤 그리드 먼저 렌더
+      body.innerHTML = `
+        <div id="all-grid" style="
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+          padding: 20px;
+          height: calc(100vh - 220px);
+          min-height: 500px;
+          box-sizing: border-box;
+        ">
+          ${PLATFORMS.map(p => `
+            <div style="
+              background: var(--bg-card, #fff);
+              border: 1px solid var(--border-soft);
+              border-radius: 12px;
+              overflow: hidden;
+              display: flex;
+              flex-direction: column;
+              height: 100%;
+            ">
+              <div style="
+                background: ${p.color};
+                color: #fff;
+                padding: 10px 14px;
+                font-size: 14px;
+                font-weight: 700;
+                letter-spacing: 0.3px;
+              ">${p.emoji} ${p.label}</div>
+              <div id="col-${p.key}" style="padding: 8px 12px; flex: 1; overflow-y: auto;">
+                ${[...Array(8)].map(() => `
+                  <div style="
+                    height: 20px;
+                    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                    background-size: 200% 100%;
+                    animation: shimmer 1.4s infinite;
+                    border-radius: 6px;
+                    margin-bottom: 14px;
+                  "></div>
+                `).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <style>
+          @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        </style>`;
+
+      // 4개 API 병렬 호출
+      const fetchPlatform = async (p) => {
+        const ctrl = new AbortController();
+        const tid  = setTimeout(() => ctrl.abort(), 300000);
+        try {
+          const res  = await fetch(p.endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(p.body),
+            signal: ctrl.signal,
+          });
+          clearTimeout(tid);
+          const data = await res.json();
+          if (!res.ok || data.error) throw new Error(data.error || '분석 실패');
+          return { key: p.key, keywords: data.keywords || [], ok: true };
+        } catch(e) {
+          clearTimeout(tid);
+          return { key: p.key, keywords: [], ok: false, error: e.message };
+        }
+      };
+
+      const results = await Promise.all(PLATFORMS.map(fetchPlatform));
+
+      // 각 열에 결과 채우기
+      let completedAt = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }).replace(/\./g, '-').slice(0,-3) + ' KST';
+      let allDone = results.every(r => r.ok);
+
+      results.forEach(r => {
+        const col = document.getElementById(`col-${r.key}`);
+        if (!col) return;
+        if (!r.ok) {
+          col.innerHTML = `<div style="font-size:12px; color:#dc3545; padding:8px;">⚠️ 수집 실패<br><span style="color:var(--text-muted)">${r.error||''}</span></div>`;
+          return;
+        }
+        col.innerHTML = r.keywords.length === 0
+          ? `<div style="font-size:12px; color:var(--text-muted); padding:8px;">결과 없음</div>`
+          : r.keywords.slice(0, 10).map((kw, i) => `
+            <div style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              padding: 10px 8px;
+              border-bottom: 1px solid var(--border-soft);
+              font-size: 13.5px;
+            ">
+              <span style="
+                min-width: 20px; height: 20px;
+                background: var(--klear-green, #6aab4f);
+                color: #fff;
+                border-radius: 50%;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 11px; font-weight: 700; flex-shrink: 0;
+              ">${i + 1}</span>
+              <span style="font-weight: 600; color: var(--text-primary);">${kw.keyword}</span>
+            </div>
+          `).join('');
+      });
+
+      tag.className = allDone ? 'result-tag tag-done' : 'result-tag tag-analyzing';
+      tag.textContent = allDone ? '✅ 분석 완료' : '⚠️ 일부 완료';
+      meta.textContent = completedAt;
+      _resetTrendBtn(btn);
+
+    // ── TikTok (Apify) ──────────────────────────────────────────────────
+    } else if (platform === 'TikTok') {
+      body.style.padding = '';  // 개별 플랫폼: 패딩 복원
+      meta.textContent = 'Apify로 TikTok K-뷰티 영상 수집 중...';
+      body.innerHTML = `
+        <div class="spinner-wrap">
+          <div class="spinner"></div>
+          <div>Apify로 TikTok 미국 K-뷰티 영상 수집 중</div>
+          <div class="spinner-step">[ #kbeauty #skincareusa 등 · gpt-4o-mini 분석 ]</div>
+        </div>`;
+      setTimeout(() => {
+        if (btn.disabled) {
+          meta.textContent = 'gpt-4o-mini 해시태그 트렌드 분석 중...';
+          body.innerHTML = `
+            <div class="spinner-wrap">
+              <div class="spinner"></div>
+              <div>gpt-4o-mini로 핫 해시태그 TOP 10 도출 중</div>
+              <div class="spinner-step">[ 빈도 순위 · 마케팅 인사이트 분석 ]</div>
+            </div>`;
+        }
+      }, 5000);
+      try {
+        const controller = new AbortController();
+        const timeoutId  = setTimeout(() => controller.abort(), 180000);
+        const res = await fetch('/api/trend/tiktok', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ top_n: 10 }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || '분석 실패');
+        tag.className = 'result-tag tag-done';
+        tag.textContent = '✅ 분석 완료';
+        meta.textContent = `${data.analyzed_at} · TikTok ${data.video_count}개 영상 · gpt-4o-mini`;
+        body.innerHTML = renderKeywordCards(data.keywords, `📡 TikTok 미국 K-뷰티 영상 ${data.video_count}개 기반 핫 해시태그 TOP ${data.keywords.length}`);
+      } catch(err) {
+        _showTrendError(err, tag, meta, body);
+      } finally {
+        _resetTrendBtn(btn);
+      }
+
+    // ── Reddit (Apify) ──────────────────────────────────────────────────
+    } else if (platform === 'Reddit') {
+      body.style.padding = '';  // 개별 플랫폼: 패딩 복원
+      meta.textContent = 'Apify로 r/AsianBeauty + r/SkincareAddiction 수집 중...';
+      body.innerHTML = `
+        <div class="spinner-wrap">
+          <div class="spinner"></div>
+          <div>Apify로 r/AsianBeauty + r/SkincareAddiction 게시글 수집 중</div>
+          <div class="spinner-step">[ 최대 100개 게시글 · gpt-4o-mini 분석 ]</div>
+        </div>`;
+      setTimeout(() => {
+        if (btn.disabled) {
+          meta.textContent = 'gpt-4o-mini 트렌드 키워드 분석 중...';
+          body.innerHTML = `
+            <div class="spinner-wrap">
+              <div class="spinner"></div>
+              <div>gpt-4o-mini로 트렌드 키워드 TOP 10 도출 중</div>
+              <div class="spinner-step">[ 성분 · 제형 · 피부고민 · 제품군 ]</div>
+            </div>`;
+        }
+      }, 5000);
+      try {
+        const controller = new AbortController();
+        const timeoutId  = setTimeout(() => controller.abort(), 180000);
+        const res = await fetch('/api/trend/reddit', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({}),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || '분석 실패');
+        tag.className = 'result-tag tag-done';
+        tag.textContent = '✅ 분석 완료';
+        meta.textContent = `${data.analyzed_at} · r/AsianBeauty+SkincareAddiction ${data.post_count}개 · gpt-4o-mini`;
+        body.innerHTML = renderKeywordCards(data.keywords, `📡 r/AsianBeauty + r/SkincareAddiction 최신 게시글 <strong>${data.post_count}개</strong> 기반 트렌드 키워드 TOP ${data.keywords.length}`);
+      } catch(err) {
+        _showTrendError(err, tag, meta, body);
+      } finally {
+        _resetTrendBtn(btn);
+      }
+
+    // ── YouTube (Apify) ─────────────────────────────────────────────────
+    } else if (platform === 'YouTube') {
+      body.style.padding = '';  // 개별 플랫폼: 패딩 복원
+      meta.textContent = 'Apify로 YouTube 영상 수집 중...';
+      body.innerHTML = `
+        <div class="spinner-wrap">
+          <div class="spinner"></div>
+          <div>Apify로 미국 K-뷰티 YouTube 영상 수집 중</div>
+          <div class="spinner-step">[ 검색어별 영상 수집 · gpt-4o-mini 분석 ]</div>
+        </div>`;
+      setTimeout(() => {
+        if (btn.disabled) {
+          meta.textContent = 'gpt-4o-mini 트렌드 키워드 분석 중...';
+          body.innerHTML = `
+            <div class="spinner-wrap">
+              <div class="spinner"></div>
+              <div>gpt-4o-mini로 YouTube 트렌드 키워드 TOP 10 도출 중</div>
+              <div class="spinner-step">[ 성분 · 제형 · 피부고민 · 제품군 ]</div>
+            </div>`;
+        }
+      }, 5000);
+      try {
+        const controller = new AbortController();
+        const timeoutId  = setTimeout(() => controller.abort(), 180000);
+        const res = await fetch('/api/trend/youtube', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({}),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || '분석 실패');
+        tag.className = 'result-tag tag-done';
+        tag.textContent = '✅ 분석 완료';
+        meta.textContent = `${data.analyzed_at} · YouTube ${data.video_count}개 영상 · gpt-4o-mini`;
+        body.innerHTML = renderKeywordCards(data.keywords, `📺 미국 K-뷰티 YouTube 영상 <strong>${data.video_count}개</strong> 기반 트렌드 키워드 TOP ${data.keywords.length}`);
+      } catch(err) {
+        _showTrendError(err, tag, meta, body);
+      } finally {
+        _resetTrendBtn(btn);
+      }
+
+    // ── Instagram (Apify) ──────────────────────────────────────────────────
+    } else {
+      body.style.padding = '';  // 개별 플랫폼: 패딩 복원
+      meta.textContent = 'Apify로 Instagram K-뷰티 게시물 수집 중...';
+      body.innerHTML = `
+        <div class="spinner-wrap">
+          <div class="spinner"></div>
+          <div>Apify로 Instagram K-뷰티 게시물 수집 중</div>
+          <div class="spinner-step">[ #kbeauty #koreanskincare · gpt-4o-mini 분석 ]</div>
+        </div>`;
+      setTimeout(() => {
+        if (btn.disabled) {
+          meta.textContent = 'gpt-4o-mini 해시태그 트렌드 분석 중...';
+          body.innerHTML = `
+            <div class="spinner-wrap">
+              <div class="spinner"></div>
+              <div>gpt-4o-mini로 Instagram 트렌드 키워드 TOP 10 도출 중</div>
+              <div class="spinner-step">[ 릴스·GRWM·인플루언서 추천템 · 마케팅 인사이트 ]</div>
+            </div>`;
+        }
+      }, 5000);
+      try {
+        const controller = new AbortController();
+        const timeoutId  = setTimeout(() => controller.abort(), 180000);
+        const res = await fetch('/api/trend/instagram', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({}),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || '분석 실패');
+        tag.className = 'result-tag tag-done';
+        tag.textContent = '✅ 분석 완료';
+        meta.textContent = `${data.analyzed_at} · Instagram ${data.post_count}개 게시물 · gpt-4o-mini`;
+        body.innerHTML = renderKeywordCards(data.keywords, `📸 Instagram K-뷰티 게시물 <strong>${data.post_count}개</strong> 기반 트렌드 키워드 TOP ${data.keywords.length}`);
+      } catch(err) {
+        _showTrendError(err, tag, meta, body);
+      } finally {
+        _resetTrendBtn(btn);
+      }
+    }
+  }
+</script>
+{% endblock %}

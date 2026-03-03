@@ -1,0 +1,1829 @@
+{% extends "layout.html" %}
+
+{% block title %}Klear · 아웃리치{% endblock %}
+{% block topbar_title %}<strong>아웃리치</strong> · 파트너십 & 유통 관리{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<style>
+/* ─── 페이지 래퍼 ──────────────────────────────── */
+.outreach-wrap {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: calc(100vh - 60px);
+}
+
+/* ─── 탭 헤더 ──────────────────────────────────── */
+/* ─── 페이지 헤더 ──────────────────────────────── */
+.outreach-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.outreach-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.outreach-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.outreach-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+
+.outreach-desc-inline {
+  font-size: 12px;
+  color: var(--text-muted);
+  border-left: 2px solid var(--border);
+  padding-left: 12px;
+  line-height: 1.4;
+}
+
+.outreach-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ─── 3단 탭 토글 ──────────────────────────────── */
+.tab-toggle {
+  display: flex;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 2px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  background: rgba(156, 180, 72, 0.08);
+  color: var(--text-primary);
+}
+
+.tab-btn.active {
+  background: var(--surface);
+  color: var(--klear-green-dark);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px var(--border);
+}
+
+.tab-btn .tab-icon { font-size: 15px; }
+
+/* ─── 탭 컨텐츠 패널 ───────────────────────────── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ─── 스플릿 레이아웃 ──────────────────────────── */
+.split-view {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  height: calc(100vh - 215px);
+  min-height: 520px;
+}
+
+.split-pane {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ─── 패널 헤더 ────────────────────────────────── */
+.pane-header {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.pane-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pane-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  background: var(--klear-green-pale);
+  color: var(--klear-green-dark);
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.pane-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.pane-body::-webkit-scrollbar { width: 4px; }
+.pane-body::-webkit-scrollbar-track { background: transparent; }
+.pane-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* ─── 로드 버튼 & 상태 ──────────────────────────── */
+.load-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.btn-load {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  background: var(--klear-green);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 8px rgba(156,180,72,0.3);
+}
+
+.btn-load:hover {
+  background: var(--klear-green-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(156,180,72,0.35);
+}
+
+.btn-load:disabled {
+  opacity: 0.6;
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* ─── 크리에이터 카드 ───────────────────────────── */
+.creator-list { display: flex; flex-direction: column; gap: 10px; }
+
+.creator-card {
+  padding: 14px 16px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  background: var(--bg);
+}
+
+.creator-card:hover {
+  border-color: var(--klear-green);
+  background: var(--klear-green-pale);
+  transform: translateX(2px);
+}
+
+.creator-card.selected {
+  border-color: var(--klear-green);
+  background: var(--klear-green-pale);
+  box-shadow: 0 0 0 2px rgba(156,180,72,0.2);
+}
+
+.creator-top {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 9px;
+}
+
+.creator-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--klear-green), var(--klear-green-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.creator-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.creator-handle { font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
+
+.creator-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 7px;
+}
+
+.meta-chip {
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  background: var(--surface);
+}
+
+.meta-chip.platform-tiktok {
+  background: #f0f0f0; color: #111; border-color: #d0d0d0;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.meta-chip.platform-ig {
+  background: linear-gradient(135deg, #fdf0f7 0%, #fff5f0 100%);
+  color: #c13584; border-color: #f3c2e2;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.meta-chip.platform-yt {
+  background: #fff0f0; color: #cc0000; border-color: #ffcccc;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.meta-chip.platform-twitter {
+  background: #e8f4fd; color: #1da1f2; border-color: #b3d9f7;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.platform-logo { width: 12px; height: 12px; flex-shrink: 0; }
+
+.creator-email {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.creator-followers {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--klear-green-dark);
+}
+
+/* ─── 이메일 에디터 ─────────────────────────────── */
+.email-editor { display: flex; flex-direction: column; height: 100%; }
+
+.email-meta {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border-soft);
+  flex-shrink: 0;
+}
+
+.email-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.email-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.email-value {
+  font-size: 12.5px;
+  color: var(--text-primary);
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 4px 10px;
+  flex: 1;
+}
+
+.email-subject-input {
+  width: 100%;
+  font-size: 12.5px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-primary);
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 4px 10px;
+  outline: none;
+}
+
+.email-subject-input:focus { border-color: var(--klear-green); }
+
+.email-body-wrap { flex: 1; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+.email-textarea {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  line-height: 1.7;
+  color: var(--text-primary);
+  background: var(--bg);
+  outline: none;
+  transition: border-color 0.15s;
+  min-height: 220px;
+}
+
+.email-textarea:focus { border-color: var(--klear-green); background: var(--surface); }
+
+.email-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.btn-send {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  background: var(--klear-green);
+  color: white;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.18s;
+}
+
+.btn-send:hover { background: var(--klear-green-dark); transform: translateY(-1px); }
+.btn-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-secondary {
+  padding: 9px 16px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s;
+}
+
+.btn-secondary:hover { background: var(--bg); border-color: var(--klear-green); color: var(--klear-green-dark); }
+
+.send-status {
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  display: none;
+}
+
+.send-status.success { display: block; background: #f0f9e8; color: var(--klear-green-dark); }
+.send-status.error   { display: block; background: #fef0f0; color: #c0392b; }
+
+/* ─── 지도 ──────────────────────────────────────── */
+#expo-map {
+  height: 100%;
+  width: 100%;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.leaflet-container { font-family: 'DM Sans', sans-serif !important; }
+
+/* ─── 전시회 목록 ────────────────────────────────── */
+.expo-list { display: flex; flex-direction: column; gap: 10px; }
+
+.expo-card {
+  padding: 14px 16px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.16s;
+  background: var(--bg);
+}
+
+.expo-card:hover, .expo-card.selected {
+  border-color: var(--klear-green);
+  background: var(--klear-green-pale);
+}
+
+.expo-name { font-size: 13.5px; font-weight: 600; color: var(--text-primary); margin-bottom: 5px; }
+.expo-date { font-size: 11.5px; color: var(--klear-green-dark); font-weight: 500; margin-bottom: 4px; }
+.expo-detail { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+.expo-tags { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+.expo-tag {
+  font-size: 10.5px;
+  padding: 2px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-secondary);
+}
+
+/* ─── 유통 채널 ─────────────────────────────────── */
+.filter-pills {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filter-pill:hover { border-color: var(--klear-green); color: var(--klear-green-dark); }
+.filter-pill.active {
+  background: var(--klear-green);
+  border-color: var(--klear-green);
+  color: white;
+}
+
+.channel-card {
+  padding: 14px 16px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.16s;
+  background: var(--bg);
+  margin-bottom: 10px;
+}
+
+.channel-card:hover, .channel-card.selected {
+  border-color: var(--klear-green);
+  background: var(--klear-green-pale);
+}
+
+.channel-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.channel-logo {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.channel-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.channel-type-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+.channel-type-badge.online  { background: #e8f4fd; color: #1565c0; }
+.channel-type-badge.offline { background: #fff3e0; color: #e65100; }
+
+.channel-detail { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+/* ─── 빈 상태 ──────────────────────────────────── */
+.empty-pane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 10px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 32px;
+}
+
+.empty-icon {
+  width: 48px; height: 48px;
+  background: var(--surface-2);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.empty-title { font-size: 13.5px; font-weight: 500; color: var(--text-secondary); }
+.empty-desc  { font-size: 12px; }
+
+/* ─── 스피너 ────────────────────────────────────── */
+.spinner-sm {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── 탭 전환 애니메이션 ─────────────────────────── */
+.tab-panel.active {
+  animation: fadeUp 0.22s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}
+
+{% block topbar_action %}
+<button class="btn btn-primary" id="btn-export">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+  </svg>
+  리스트 내보내기
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="outreach-wrap">
+
+  <!-- ── 헤더: 좌측 제목+탭, 우측 설명 ── -->
+  <div class="outreach-header">
+
+    <!-- 좌측: 제목 + 탭 세로 배치 -->
+    <div class="outreach-title-block">
+      <div class="outreach-title-row">
+        <div class="outreach-title">🤝 파트너십 아웃리치</div>
+      </div>
+      <!-- 탭 토글: 제목 아래 좌측 정렬 -->
+      <div class="tab-toggle">
+        <button class="tab-btn active" onclick="switchTab('creator', this)">
+          <span class="tab-icon">📱</span> 마이크로 크리에이터
+        </button>
+        <button class="tab-btn" onclick="switchTab('expo', this)">
+          <span class="tab-icon">🎪</span> 뷰티 전시회
+        </button>
+        <button class="tab-btn" onclick="switchTab('channel', this)">
+          <span class="tab-icon">🛒</span> 유통 채널 입점
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════
+       탭 1: 마이크로 크리에이터
+       ══════════════════════════════════ -->
+  <div id="tab-creator" class="tab-panel active">
+    <div class="split-view">
+
+      <!-- 좌: 크리에이터 리스트 -->
+      <div class="split-pane">
+        <div class="pane-header">
+          <div class="pane-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            미국 뷰티 크리에이터
+          </div>
+          <button class="btn-load" id="btn-load-creators" onclick="loadCreators()">
+            🔍 미국 뷰티 크리에이터 도출
+          </button>
+        </div>
+        <div class="pane-body" id="creator-list-body">
+          <div class="load-section">
+            <div class="empty-icon">👤</div>
+            <div class="empty-title">버튼을 눌러 크리에이터를 불러오세요</div>
+            <div class="empty-desc">미국 내 팔로워 1만~5만 뷰티 크리에이터 목록이 표시됩니다</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우: 이메일 에디터 -->
+      <div class="split-pane">
+        <div class="pane-header">
+          <div class="pane-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            협업 제안서
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <select id="template-type" onchange="onTemplateChange()" style="font-size:11.5px; font-family:'DM Sans',sans-serif; border:1px solid var(--border); border-radius:7px; padding:4px 10px; background:var(--bg); color:var(--text-secondary); cursor:pointer; outline:none;">
+              <option value="auto">🤖 자동 (플랫폼 기반)</option>
+              <option value="A">🔬 Type A — 성분 강조형</option>
+              <option value="B">✨ Type B — 트렌드/비주얼형</option>
+            </select>
+            <span class="pane-badge" id="creator-selected-name">크리에이터 선택 대기</span>
+          </div>
+        </div>
+        <div class="pane-body" style="padding:0; display:flex; flex-direction:column;">
+          <div id="creator-editor-empty" class="empty-pane">
+            <div class="empty-icon">✉️</div>
+            <div class="empty-title">좌측에서 크리에이터를 선택하세요</div>
+            <div class="empty-desc">선택하면 맞춤형 협업 제안 메일이 자동으로 작성됩니다</div>
+          </div>
+          <div id="creator-email-editor" style="display:none; flex:1; flex-direction:column; overflow:hidden;">
+            <div class="email-meta">
+              <div class="email-field">
+                <span class="email-label">To</span>
+                <span class="email-value" id="c-email-to">—</span>
+              </div>
+              <div class="email-field" style="margin-bottom:0;">
+                <span class="email-label">제목</span>
+                <input class="email-subject-input" id="c-email-subject" type="text" value="[Klear x Creator] Sun Serum Review Collaboration Proposal" />
+              </div>
+            </div>
+            <div class="email-body-wrap">
+              <textarea class="email-textarea" id="c-email-body"></textarea>
+              <div class="email-actions">
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <button class="btn-send" id="btn-send-creator" onclick="sendEmail('creator')">
+                    📧 메일 발송
+                  </button>
+                  <button class="btn-secondary" onclick="resetCreatorEmail()">↺ 초기화</button>
+                </div>
+                <span class="send-status" id="creator-send-status"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       탭 2: 뷰티 전시회
+       ══════════════════════════════════ -->
+  <div id="tab-expo" class="tab-panel">
+    <div class="split-view">
+
+      <!-- 좌: 지도 -->
+      <div class="split-pane">
+        <div class="pane-header">
+          <div class="pane-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            미국 전시회·박람회 개최 위치
+          </div>
+          <button class="btn-load" id="btn-load-expos" onclick="loadExpos()">
+            🗺️ 전시회 찾기
+          </button>
+        </div>
+        <div class="pane-body" style="padding:0; position:relative;">
+          <div id="expo-map-placeholder" class="load-section" style="position:absolute; inset:0; z-index:2; background:var(--surface);">
+            <div class="empty-icon">🗺️</div>
+            <div class="empty-title">전시회 찾기 버튼을 눌러주세요</div>
+            <div class="empty-desc">미국 전시회 개최 위치가 지도에 표시됩니다</div>
+          </div>
+          <div id="expo-map" style="height:100%;"></div>
+        </div>
+      </div>
+
+      <!-- 우: 전시회 목록 + 신청서 -->
+      <div class="split-pane">
+        <div class="pane-header">
+          <div class="pane-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            행사 목록 & 전시회 참여 신청서
+          </div>
+          <span class="pane-badge" id="expo-selected-name">행사 선택 대기</span>
+        </div>
+        <div class="pane-body" id="expo-right-body">
+          <div class="empty-pane">
+            <div class="empty-icon">🎪</div>
+            <div class="empty-title">좌측 지도에서 핀을 선택하세요</div>
+            <div class="empty-desc">행사 상세 정보와 참가 신청서가 표시됩니다</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       탭 3: 유통 채널 입점
+       ══════════════════════════════════ -->
+  <div id="tab-channel" class="tab-panel">
+    <div class="split-view">
+
+      <!-- 좌: 채널 리스트 -->
+      <div class="split-pane">
+        <div class="pane-header">
+          <div class="pane-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            유통 채널 목록
+          </div>
+          <button class="btn-load" id="btn-load-channels" onclick="loadChannels()">
+            🛒 채널 데이터 로드
+          </button>
+        </div>
+        <div class="pane-body" id="channel-list-body">
+          <div class="load-section">
+            <div class="empty-icon">🏪</div>
+            <div class="empty-title">채널 데이터를 불러오세요</div>
+            <div class="empty-desc">Walmart, Amazon, Ulta 등 유통 채널 정보가 표시됩니다</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우: 입점 제안서 -->
+      <div class="split-pane">
+        <div class="pane-header">
+          <div class="pane-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            입점 제안서
+          </div>
+          <span class="pane-badge" id="channel-selected-name">채널 선택 대기</span>
+        </div>
+        <div class="pane-body" style="padding:0; display:flex; flex-direction:column;">
+          <div id="channel-editor-empty" class="empty-pane">
+            <div class="empty-icon">📄</div>
+            <div class="empty-title">좌측에서 유통 채널을 선택하세요</div>
+            <div class="empty-desc">채널 맞춤형 입점 제안서가 자동 생성됩니다</div>
+          </div>
+          <div id="channel-email-editor" style="display:none; flex:1; flex-direction:column; overflow:hidden;">
+            <div class="email-meta">
+              <div class="email-field">
+                <span class="email-label">To</span>
+                <span class="email-value" id="ch-email-to">—</span>
+              </div>
+              <div class="email-field" style="margin-bottom:0;">
+                <span class="email-label">제목</span>
+                <input class="email-subject-input" id="ch-email-subject" type="text" />
+              </div>
+            </div>
+            <div class="email-body-wrap">
+              <textarea class="email-textarea" id="ch-email-body"></textarea>
+              <div class="email-actions">
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <button class="btn-send" id="btn-send-channel" onclick="sendEmail('channel')">
+                    📧 제안서 발송
+                  </button>
+                  <button class="btn-secondary" onclick="resetChannelEmail()">↺ 초기화</button>
+                </div>
+                <span class="send-status" id="channel-send-status"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script>
+
+// ═══════════════════════════════════════════════════
+// 탭 전환
+// ═══════════════════════════════════════════════════
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+
+  // 지도 탭 전환 시 크기 재계산
+  if (tab === 'expo' && window._expoMap) {
+    setTimeout(() => window._expoMap.invalidateSize(), 50);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// 탭 1: 크리에이터
+// ═══════════════════════════════════════════════════
+let _selectedCreator = null;
+let _creatorsCache   = null;
+let _seenHandles     = new Set();  // 세션 내 조사된 핸들 누적 (중복 방지)
+let _callIndex       = 0;          // 호출 회차 (0-based)
+
+async function loadCreators() {
+  const btn  = document.getElementById('btn-load-creators');
+  const body = document.getElementById('creator-list-body');
+  btn.disabled = true;
+
+  const isRefresh = _callIndex > 0;
+  btn.innerHTML = `<span class="spinner-sm"></span> ${isRefresh ? (_callIndex+1)+'번째 조사 중...' : '리서치 중...'}`;
+
+  // ── 진행 단계 표시 ────────────────────────────────────────────────────
+  const steps = [
+    { icon:'📊', text:`큐레이션 DB(thesocialcat·heepsy·modash) 검색 중... (팔로워 수치 직접 조회)` },
+    { icon:'🎵', text:`TikTok 프로필(@핸들) 4쿼리 검색 중... ${isRefresh?'이전과 다른 크리에이터 탐색':''}` },
+    { icon:'📸', text:'Instagram · YouTube · Reddit 교차 검색 중...' },
+    { icon:'🤖', text:`gpt-4o 정제 중 — 팔로워 30K~200K 마이크로 필터 · 제외 ${_seenHandles.size}명` },
+  ];
+  let stepIdx = 0;
+  body.innerHTML = `<div class="load-section" id="creator-progress">
+    <div class="spinner-sm" style="border-color:rgba(0,0,0,0.15);border-top-color:var(--klear-green);width:28px;height:28px;border-width:3px;margin-bottom:12px;"></div>
+    <div id="step-label" style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:6px;">${steps[0].icon} ${steps[0].text}</div>
+    <div style="font-size:11px;color:var(--text-muted);">SerpApi 검색 + gpt-4o 분석 · 약 25~40초 소요</div>
+    <div style="display:flex;gap:6px;margin-top:14px;">
+      ${steps.map((s,i)=>`<div id="step-dot-${i}" style="width:8px;height:8px;border-radius:50%;background:${i===0?'var(--klear-green)':'var(--border)'};transition:background .3s;"></div>`).join('')}
+    </div>
+  </div>`;
+
+  const stepTimer = setInterval(() => {
+    stepIdx = (stepIdx + 1) % steps.length;
+    const lbl = document.getElementById('step-label');
+    if (lbl) lbl.textContent = steps[stepIdx].icon + ' ' + steps[stepIdx].text;
+    steps.forEach((_,i) => {
+      const dot = document.getElementById('step-dot-'+i);
+      if (dot) dot.style.background = i === stepIdx ? 'var(--klear-green)' : 'var(--border)';
+    });
+  }, 8000);
+
+  try {
+    // ── POST: excluded_handles + call_index 전달 → 중복 방지 + 다른 쿼리 보장 ──
+    const res = await fetch('/api/outreach/creators', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        excluded_handles: Array.from(_seenHandles),
+        call_index:       _callIndex,
+      }),
+    });
+    clearInterval(stepTimer);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    // ── 반환된 핸들 누적 (다음 호출 시 제외 목록에 포함) ──────────────────
+    (data.creators || []).forEach(c => {
+      const h = (c.handle || '').replace('@','').toLowerCase().trim();
+      if (h) _seenHandles.add(h);
+    });
+    _callIndex++;
+    _creatorsCache = data.creators;
+
+    renderCreatorList(data.creators);
+
+    // ── KPI 연동 ──────────────────────────────────────────────────────────
+    try {
+      const cnt = (data.creators || []).length;
+      const cur = JSON.parse(localStorage.getItem('klear_stat_influencers') || '83');
+      localStorage.setItem('klear_stat_influencers', JSON.stringify(cur + cnt));
+    } catch(_e) {}
+
+    // ── 뱃지 ─────────────────────────────────────────────────────────────
+    const badge = document.createElement('div');
+    badge.style.cssText = 'font-size:10px;color:var(--text-muted);padding:4px 8px;text-align:right;';
+    badge.textContent   = `${data.method||''} · ${data.analyzed_at||''} · 누적 제외 ${_seenHandles.size}명`;
+    document.getElementById('creator-list-body').appendChild(badge);
+
+  } catch(e) {
+    clearInterval(stepTimer);
+    body.innerHTML = `<div class="load-section" style="color:#c0392b;text-align:center;">
+        <div style="font-size:20px;margin-bottom:8px;">❌</div>
+        <div style="font-weight:600;margin-bottom:4px;">로드 실패</div>
+        <div style="font-size:11.5px;color:var(--text-muted);">${e.message}</div>
+        <div style="font-size:11px;margin-top:8px;padding:8px 12px;background:var(--klear-green-pale);border-radius:8px;color:var(--klear-green-dark);">
+          💡 .env 파일에 SERPAPI_KEY와 OPENAI_API_KEY가 설정되어 있는지 확인하세요
+        </div>
+      </div>`;
+  } finally {
+    btn.disabled = false;
+    if (_callIndex > 0) {
+      btn.innerHTML = `🔄 다른 크리에이터 조사 (${_callIndex+1}회차)`;
+    } else {
+      btn.innerHTML = `🔄 새로고침`;
+    }
+  }
+}
+
+function renderCreatorList(creators) {
+  const body = document.getElementById('creator-list-body');
+  const pClass = p => {
+    if (p === 'TikTok')     return 'platform-tiktok';
+    if (p === 'Instagram')  return 'platform-ig';
+    if (p === 'YouTube')    return 'platform-yt';
+    if (p === 'Twitter' || p === 'X') return 'platform-twitter';
+    return 'platform-tiktok';
+  };
+
+  // 각 SNS 플랫폼 SVG 로고
+  const pLogo = p => {
+    if (p === 'TikTok') return `<svg class="platform-logo" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.2 8.2 0 0 0 4.78 1.52V6.73a4.85 4.85 0 0 1-1.01-.04z"/></svg>`;
+    if (p === 'Instagram') return `<svg class="platform-logo" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>`;
+    if (p === 'YouTube') return `<svg class="platform-logo" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`;
+    if (p === 'Twitter' || p === 'X') return `<svg class="platform-logo" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.629L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>`;
+    return '';
+  };
+
+  body.innerHTML = `<div class="creator-list">${creators.map((c, i) => {
+    const platforms = (c.multi_platform && c.multi_platform.length) ? c.multi_platform : [c.platform];
+    const pChips = platforms.map(p => `<span class="meta-chip ${pClass(p)}">${pLogo(p)}${p}</span>`).join('');
+    return `
+    <div class="creator-card" id="c-card-${i}" onclick="selectCreator(${i})">
+      <div class="creator-top">
+        <div class="creator-avatar">${c.name.substring(0,2).toUpperCase()}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="creator-name">${c.name}</div>
+          <div class="creator-handle">${c.handle || ''}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div class="creator-followers">
+            ${(() => {
+              const f = c.followers || '미확인';
+              if (!f || f === '미확인') return '<span style="color:var(--text-muted);font-size:10px;">👥 미확인</span>';
+              if (f.includes('추정')) return `<span style="color:#e67e22;">👥 ${f}</span>`;
+              return `👥 ${f}`;
+            })()}
+          </div>
+          ${c.estimated_er ? `<div style="font-size:10.5px;color:var(--klear-green-dark);font-weight:600;">ER ${c.estimated_er}</div>` : ''}
+        </div>
+      </div>
+      <div class="creator-meta">
+        ${pChips}
+        <span class="meta-chip">${c.gender||''}</span>
+        ${c.creator_age ? `<span class="meta-chip" title="크리에이터 본인 나이">🎂 만 ${c.creator_age}세</span>` : ''}
+        <span class="meta-chip">📍 ${c.location||''}</span>
+        <span class="meta-chip">💄 ${c.niche||''}</span>
+      </div>
+      ${c.audience_age ? `
+      <div style="font-size:11px;color:var(--text-muted);margin:3px 0 0;padding:3px 8px;display:inline-flex;align-items:center;gap:4px;">
+        <span style="font-weight:600;color:var(--klear-green-dark);">팬층 주연령대</span>
+        <span>${c.audience_age}</span>
+      </div>` : ''}
+      ${c.content_style ? `
+      <div style="font-size:11.5px;color:var(--text-secondary);line-height:1.55;margin:7px 0 4px;padding:8px 10px;background:var(--surface);border-radius:7px;border-left:2px solid var(--klear-green);">
+        <div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:3px;letter-spacing:.5px;">📹 콘텐츠 스타일</div>
+        ${c.content_style}
+      </div>` : ''}
+      ${c.audience ? `
+      <div style="font-size:11.5px;color:var(--text-secondary);line-height:1.55;margin:4px 0;padding:8px 10px;background:var(--klear-green-pale);border-radius:7px;">
+        <div style="font-size:10px;font-weight:700;color:var(--klear-green-dark);margin-bottom:3px;letter-spacing:.5px;">👥 팬층</div>
+        ${c.audience}
+      </div>` : ''}
+      ${c.collab_fit ? `
+      <div style="font-size:11px;color:var(--klear-green-dark);font-weight:500;margin-top:5px;padding:5px 9px;background:rgba(156,180,72,.1);border-radius:6px;border:1px solid rgba(156,180,72,.25);">
+        ✅ ${c.collab_fit}
+      </div>` : ''}
+      <div class="creator-email" style="margin-top:7px;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        ${(c.email && c.email !== '[ SNS에서 직접 확인 ]' && c.email !== '[[공식_프로필_확인]]' && c.email !== '[[공식_웹사이트_확인]]')
+          ? c.email
+          : '<span style="color:#e67e22;font-weight:600;">[ SNS에서 직접 확인 ]</span>'
+        }
+      </div>
+      ${(() => {
+        // profile_url 없으면 handle + platform으로 자동 구성
+        let url = c.profile_url || '';
+        if (!url && c.handle) {
+          const h = c.handle.replace('@','');
+          const p = (c.platform || 'TikTok').toLowerCase();
+          if (p === 'tiktok')     url = `https://www.tiktok.com/@${h}`;
+          else if (p === 'instagram') url = `https://www.instagram.com/${h}`;
+          else if (p === 'youtube')   url = `https://www.youtube.com/@${h}`;
+          else url = `https://www.tiktok.com/@${h}`;
+        }
+        return url ? `
+        <div style="margin-top:4px;">
+          <a href="${url}" target="_blank" rel="noopener"
+             style="display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;
+                    color:var(--klear-green-dark);text-decoration:none;padding:3px 8px;
+                    background:var(--klear-green-pale);border-radius:5px;border:1px solid rgba(156,180,72,.3);">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            프로필 열기 → ${c.platform || 'SNS'}
+          </a>
+        </div>` : '';
+      })()}
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function selectCreator(idx) {
+  document.querySelectorAll('.creator-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`c-card-${idx}`)?.classList.add('selected');
+
+  const c = _creatorsCache[idx];
+  _selectedCreator = c;
+
+  document.getElementById('creator-selected-name').textContent = c.name;
+  const emailVal = (c.email && !['[ SNS에서 직접 확인 ]','[[공식_프로필_확인]]','[[공식_웹사이트_확인]]'].includes(c.email)) ? c.email : '⚠ 플랫폼에 접속해 직접 연락 필요';
+  document.getElementById('c-email-to').textContent = emailVal;
+  document.getElementById('c-email-subject').value =
+    `[Klear x ${c.name}] Sun Serum Review Collaboration Proposal`;
+
+  const body = buildCreatorEmail(c);
+  document.getElementById('c-email-body').value = body;
+  document.getElementById('creator-editor-empty').style.display = 'none';
+  document.getElementById('creator-email-editor').style.display = 'flex';
+  document.getElementById('creator-send-status').className = 'send-status';
+}
+
+// ─── 제안서 템플릿 Type A/B ─────────────────────────
+function onTemplateChange() {
+  if (_selectedCreator) selectCreator(_creatorsCache.indexOf(_selectedCreator));
+}
+
+function getTemplateType(c) {
+  const sel = document.getElementById('template-type')?.value || 'auto';
+  if (sel !== 'auto') return sel;
+  // 자동: YouTube/블로그 계열 → A(성분), TikTok/IG → B(트렌드)
+  return (c.platform === 'YouTube') ? 'A' : 'B';
+}
+
+function buildCreatorEmail(c) {
+  const type = getTemplateType(c);
+  return type === 'A' ? buildTypeA(c) : buildTypeB(c);
+}
+
+// Type A — 성분 강조형 (YouTube/블로그 리뷰어 타겟)
+function buildTypeA(c) {
+  return `Dear ${c.name},
+
+I hope this message finds you well.
+
+My name is [Your Name], and I represent Klear — a science-backed K-Beauty skincare brand dedicated to bringing cutting-edge Korean UV protection to the US market.
+
+We've been following your in-depth ${c.niche} reviews on ${c.platform}, and we greatly admire the level of ingredient literacy and critical analysis you bring to your audience. Your ${c.followers} followers trust your judgment precisely because you don't shy away from the details — and that's exactly the kind of creator we want to work with.
+
+We'd love to introduce you to our newest formulation: the Klear Sun Serum SPF 50+/PA++++.
+
+🔬 Formulation Highlights (for your analytical eye):
+• UV Filters: Uvinul A Plus + Tinosorb S (next-gen organic filters — zero white cast, no greasiness)
+• Active Ingredients: Niacinamide 5% (pore refinement + sebum control), Centella Asiatica (barrier repair), Sodium Hyaluronate (3-layer hydration)
+• Texture: Lightweight serum base — absorbs in under 10 seconds, no pilling under makeup
+• Free from: Oxybenzone, Avobenzone, fragrance, alcohol
+• Certifications: EWG Green ✓ | Dermatologist Tested ✓ | Cruelty-Free ✓
+
+🎯 Collaboration Proposal:
+• Full PR Kit (Sun Serum + supporting actives for layering test)
+• 1x In-depth Review Video (YouTube Short or dedicated video — your format)
+• Transparent usage: Share your honest opinion, including any concerns
+• Fair compensation commensurate with your reach and engagement
+
+We believe a thorough, evidence-based review from a trusted voice like yours would carry tremendous weight with ingredient-savvy consumers.
+
+Would you be open to receiving a sample and having a brief call?
+
+Best regards,
+[Your Name]
+Brand Partnership Manager, Klear K-Beauty
+📧 partnerships@klear-beauty.com
+🌿 www.klear-beauty.com`;
+}
+
+// Type B — 트렌드/비주얼 강조형 (TikTok/Instagram 숏폼 크리에이터 타겟)
+function buildTypeB(c) {
+  return `Hey ${c.name}! 👋
+
+I'm [Your Name] from Klear, a K-Beauty brand that's been making serious waves in the US skincare scene — and after scrolling through your ${c.platform} feed, I knew I had to reach out. Your ${c.niche} content is *exactly* the vibe we've been looking for. ✨
+
+We just launched something I think your audience is going to absolutely love:
+
+💧 Klear Sun Serum — The SPF that doesn't feel like SPF.
+No white cast. No sticky residue. Just this insanely lightweight, glass-skin-finish serum that also happens to be SPF 50+. It's the kind of product that makes for the most satisfying Before/After content.
+
+Why your audience will love it:
+• Immediate cooling effect upon application (SO satisfying on camera 🎥)
+• Glowy, dewy finish — perfect for that #glassskin look
+• Zero pill-up under makeup — ideal for your GRWM content
+• Packaging: Clean, minimal, aesthetic ✓
+
+What we're offering:
+• Full PR gifting package (yours to keep & share 🎁)
+• ${c.platform === 'TikTok'
+    ? '1x TikTok Review (30–60 sec) — Before/After, First Impression, or Routine integration, your call!'
+    : '1x Instagram Reel (30–60 sec) + 2–3 Stories — totally up to your creative direction'}
+• Creator fee based on your engagement metrics
+• Ongoing ambassador collab potential 🌿
+
+I'd love to send you a package so you can experience it firsthand. Does this sound like something you'd be excited about?
+
+Drop me a reply and let's make something great together! 🙌
+
+Warmly,
+[Your Name]
+Creator Partnerships, Klear K-Beauty
+📧 partnerships@klear-beauty.com
+🌿 @klearbeauty`;
+}
+
+
+
+function resetCreatorEmail() {
+  if (_selectedCreator) {
+    document.getElementById('c-email-body').value = buildCreatorEmail(_selectedCreator);
+    document.getElementById('c-email-subject').value =
+      `[Klear x ${_selectedCreator.name}] Sun Serum Review Collaboration Proposal`;
+    document.getElementById('creator-send-status').className = 'send-status';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// 탭 2: 전시회
+// ═══════════════════════════════════════════════════
+let _selectedExpo  = null;
+let _exposCache    = null;
+let _mapInitialized = false;
+
+async function loadExpos() {
+  const btn = document.getElementById('btn-load-expos');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner-sm"></span> 불러오는 중...`;
+
+  try {
+    const res  = await fetch('/api/outreach/exhibitions');
+    const data = await res.json();
+    _exposCache = data.exhibitions;
+
+    document.getElementById('expo-map-placeholder').style.display = 'none';
+    initExpoMap(data.exhibitions);
+    renderExpoRight(data.exhibitions);
+
+  } catch(e) {
+    document.getElementById('expo-map-placeholder').innerHTML =
+      `<div style="color:#c0392b;">❌ 로드 실패: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `🔄 새로고침`;
+  }
+}
+
+function initExpoMap(expos) {
+  if (_mapInitialized) { window._expoMap.remove(); }
+
+  const map = L.map('expo-map', { zoomControl: true }).setView([37.8, -96], 4);
+  window._expoMap = map;
+  _mapInitialized = true;
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '©OpenStreetMap ©CartoDB', subdomains: 'abcd', maxZoom: 19
+  }).addTo(map);
+
+  // ✅ MarkerCluster 그룹 생성 (핀 겹침 방지)
+  const clusterGroup = L.markerClusterGroup({
+    iconCreateFunction: (cluster) => L.divIcon({
+      html: `<div style="
+        width:36px; height:36px; border-radius:50%;
+        background:var(--klear-green, #9cb448);
+        color:white; font-weight:700; font-size:13px;
+        display:flex; align-items:center; justify-content:center;
+        border:2px solid white;
+        box-shadow:0 2px 8px rgba(156,180,72,0.5);
+      ">${cluster.getChildCount()}</div>`,
+      className: '', iconSize: [36, 36], iconAnchor: [18, 18],
+    }),
+    showCoverageOnHover: false,
+    maxClusterRadius: 60,
+  });
+
+  const greenIcon = L.divIcon({
+    html: `<div style="
+      width:30px; height:30px; border-radius:50% 50% 50% 0; transform:rotate(-45deg);
+      background:var(--klear-green, #9cb448); border:2px solid white;
+      box-shadow:0 2px 8px rgba(0,0,0,0.25);
+    "></div>`,
+    className: '', iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30]
+  });
+
+  expos.forEach((expo, i) => {
+    const marker = L.marker([expo.lat, expo.lng], { icon: greenIcon });
+    marker.bindPopup(`
+      <div style="font-family:'DM Sans',sans-serif; min-width:200px;">
+        <div style="font-weight:600; font-size:13px; margin-bottom:4px;">${expo.name}</div>
+        <div style="font-size:11.5px; color:#666; margin-bottom:6px;">📅 ${expo.date} · 📍 ${expo.city}</div>
+        <div style="font-size:12px; color:#333;">${expo.theme}</div>
+        <div style="margin-top:8px;">
+          <button onclick="selectExpo(${i})" style="
+            background:var(--klear-green, #9cb448); color:white; border:none;
+            padding:5px 12px; border-radius:6px; font-size:11.5px; cursor:pointer;
+          ">전시회 참여 신청서 작성</button>
+        </div>
+      </div>
+    `, { maxWidth: 250 });
+    marker.on('click', () => selectExpo(i));
+    clusterGroup.addLayer(marker);   // 지도에 직접 addTo 대신 클러스터 그룹에 추가
+  });
+
+  map.addLayer(clusterGroup);
+}
+
+function renderExpoRight(expos) {
+  const body = document.getElementById('expo-right-body');
+  body.innerHTML = `<div class="expo-list">${expos.map((e, i) => `
+    <div class="expo-card" id="expo-card-${i}" onclick="selectExpo(${i})">
+      <div class="expo-name">${e.name}</div>
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:2px;">
+        <div class="expo-date" style="margin-bottom:0;">📅 ${e.date} · 📍 ${e.city}, ${e.state}</div>
+        ${e.official_website ? `<a href="${e.official_website}" target="_blank" rel="noopener"
+           style="font-size:10px;color:var(--klear-green-dark);font-weight:600;text-decoration:none;
+                  display:inline-flex;align-items:center;gap:3px;white-space:nowrap;
+                  padding:2px 7px;border-radius:10px;background:var(--klear-green-pale);
+                  border:1px solid rgba(156,180,72,.3);">
+          🌐 ${e.official_website.replace("https://","").replace("http://","").split("/")[0]}
+        </a>` : ""}
+      </div>
+      <div class="expo-detail">${e.description}</div>
+      <div class="expo-tags">${e.tags.map(t => `<span class="expo-tag">${t}</span>`).join('')}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;align-items:center;">
+        ${(e.contact_email && !e.contact_email.includes('[['))
+          ? `<span style="font-size:10.5px;color:var(--text-muted);display:flex;align-items:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2,.9-2,2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>${e.contact_email}</span>`
+          : e.official_website
+            ? `<a href="${e.official_website}" target="_blank" style="font-size:10.5px;color:var(--klear-green-dark);font-weight:600;text-decoration:none;">🔗 공식 사이트에서 이메일 확인 →</a>`
+            : '<span style="font-size:10.5px;color:var(--text-muted);font-style:italic;">📧 직접 확인 필요</span>'
+        }
+        ${e.official_website ? `<a href="${e.official_website}" target="_blank" style="font-size:10.5px;color:var(--klear-green-dark);text-decoration:none;display:flex;align-items:center;gap:3px;">🌐 ${e.official_website.replace('https://','').split('/')[0]}</a>` : ''}
+        ${e.booth_cost ? `<span style="font-size:10.5px;color:#7a5c00;background:#fff8e1;border:1px solid #ffe082;padding:1px 7px;border-radius:10px;">💰 ${e.booth_cost}</span>` : ''}
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function selectExpo(idx) {
+  document.querySelectorAll('.expo-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`expo-card-${idx}`)?.classList.add('selected');
+
+  const expo = _exposCache[idx];
+  _selectedExpo = expo;
+  document.getElementById('expo-selected-name').textContent = expo.name;
+
+  // 지도 포커스
+  if (window._expoMap) {
+    window._expoMap.flyTo([expo.lat, expo.lng], 9, { duration: 0.8 });
+  }
+
+  // 우측에 신청서 주입
+  const body = document.getElementById('expo-right-body');
+  body.innerHTML = `
+    <div class="expo-list" style="margin-bottom:16px;">${_exposCache.map((e, i) => `
+      <div class="expo-card ${i === idx ? 'selected' : ''}" id="expo-card-${i}" onclick="selectExpo(${i})">
+        <div class="expo-name">${e.name}</div>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:2px;">
+          <div class="expo-date" style="margin-bottom:0;">📅 ${e.date} · 📍 ${e.city}, ${e.state}</div>
+          ${e.official_website ? `<a href="${e.official_website}" target="_blank" rel="noopener"
+             style="font-size:10px;color:var(--klear-green-dark);font-weight:600;text-decoration:none;
+                    display:inline-flex;align-items:center;gap:3px;white-space:nowrap;
+                    padding:2px 7px;border-radius:10px;background:var(--klear-green-pale);
+                    border:1px solid rgba(156,180,72,.3);">
+            🌐 ${e.official_website.replace("https://","").replace("http://","").split("/")[0]}
+          </a>` : ""}
+        </div>
+        <div class="expo-detail">${e.description}</div>
+        <div class="expo-tags">${e.tags.map(t => `<span class="expo-tag">${t}</span>`).join('')}</div>
+      </div>`).join('')}</div>
+
+    <div style="border-top:1px solid var(--border); padding-top:16px; margin-top:4px;">
+      <div style="font-size:13px; font-weight:600; margin-bottom:12px;">
+        ✉️ ${expo.name} 전시회 참여 신청서
+      </div>
+      <div class="email-meta" style="border:1px solid var(--border-soft); border-radius:10px; margin-bottom:10px; background:var(--bg);">
+        <div class="email-field">
+          <span class="email-label">To</span>
+          <span class="email-value">${expo.contact_email}</span>
+        </div>
+        <div class="email-field" style="margin-bottom:0;">
+          <span class="email-label">제목</span>
+          <input class="email-subject-input" id="expo-email-subject" value="[Klear K-Beauty] Exhibition Participation Inquiry — ${expo.name} ${expo.date}" />
+        </div>
+      </div>
+      <textarea class="email-textarea" id="expo-email-body" style="min-height:260px; margin-bottom:12px;">${buildExpoEmail(expo)}</textarea>
+      <div class="email-actions">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button class="btn-send" onclick="sendExpoEmail()">📧 신청 메일 발송</button>
+          <button class="btn-secondary" onclick="document.getElementById('expo-email-body').value = buildExpoEmail(_selectedExpo)">↺ 초기화</button>
+        </div>
+        <span class="send-status" id="expo-send-status"></span>
+      </div>
+    </div>`;
+}
+
+function buildExpoEmail(expo) {
+  return `Dear ${expo.name} Organizing Committee,
+
+I hope this message reaches you at the right time.
+
+My name is [Your Name], representing Klear, a premium K-Beauty skincare brand. We are thrilled about ${expo.name} happening in ${expo.city}, ${expo.state} on ${expo.date}, and we would love to explore opportunities to participate.
+
+About Klear:
+Klear is a Seoul-founded, science-backed K-Beauty brand specializing in UV protection and skin barrier solutions. Our flagship product — the Klear Sun Serum (SPF 50+/PA++++) — has earned strong recognition among US skincare enthusiasts for its zero white cast formula and lightweight, serum-like texture.
+
+Our Participation Interest:
+• Booth Exhibition: Showcase and sample distribution of Klear Sun Serum & skincare line
+• B2B Buyer Meetings: Connect with US retail buyers and distributors
+• Brand Presentation: Short presentation on K-Beauty UV care market trends
+
+Why ${expo.name}:
+Your event's focus on ${expo.theme} aligns perfectly with our brand philosophy, and we see it as an ideal platform to meet ${expo.attendees.toLocaleString()} industry professionals.
+
+We would be grateful for information regarding:
+1. Available booth sizes and pricing
+2. Schedule for buyer meeting sessions
+3. Application deadlines and required documentation
+
+We are ready to provide any brand materials, certifications, or product samples you may need. Please find our media kit attached (or let us know the best way to share it).
+
+Thank you sincerely for your time and consideration. We look forward to the possibility of joining ${expo.name}.
+
+Best regards,
+[Your Name]
+International Sales & Partnership Manager
+Klear K-Beauty
+📧 global@klear-beauty.com | 🌐 www.klear-beauty.com`;
+}
+
+async function sendExpoEmail() {
+  const subject = document.getElementById('expo-email-subject')?.value;
+  const body    = document.getElementById('expo-email-body')?.value;
+  const status  = document.getElementById('expo-send-status');
+  if (!_selectedExpo) return;
+
+  try {
+    const res = await fetch('/api/outreach/send-email', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ to: _selectedExpo.contact_email, subject, body, type: 'expo' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      status.textContent = '✅ 발송 완료!';
+      status.className = 'send-status success';
+      // ── 대시보드 KPI 연동: 메일 발송량 +1 ─────────────────────────
+      try {
+        const cur = JSON.parse(localStorage.getItem('klear_stat_mails') || '28');
+        localStorage.setItem('klear_stat_mails', JSON.stringify(cur + 1));
+        const mails = JSON.parse(localStorage.getItem('klear_recent_mails') || '[]');
+        const h = new Date().getHours(), m2 = new Date().getMinutes();
+        mails.unshift({ icon:'🎪', iconClass:'mail-icon-expo',
+          name: _selectedExpo?.name || '전시회', type:'전시회', subtype:'expo',
+          time: `${String(h).padStart(2,'0')}:${String(m2).padStart(2,'0')}` });
+        localStorage.setItem('klear_recent_mails', JSON.stringify(mails.slice(0,20)));
+      } catch(_e) {}
+    } else {
+      status.textContent = `❌ ${data.error}`;
+      status.className = 'send-status error';
+    }
+  } catch(e) {
+    status.textContent = `❌ 오류: ${e.message}`;
+    status.className = 'send-status error';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// 탭 3: 유통 채널
+// ═══════════════════════════════════════════════════
+let _selectedChannel = null;
+let _channelsCache   = null;
+let _channelFilter   = 'all';
+
+async function loadChannels() {
+  const btn  = document.getElementById('btn-load-channels');
+  const body = document.getElementById('channel-list-body');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner-sm"></span> 불러오는 중...`;
+  body.innerHTML = `<div class="load-section"><div class="spinner-sm" style="border-color:rgba(0,0,0,0.15); border-top-color:var(--klear-green); width:24px; height:24px; border-width:3px;"></div></div>`;
+
+  try {
+    const res  = await fetch('/api/outreach/channels');
+    const data = await res.json();
+    _channelsCache = data.channels;
+    renderChannelList(data.channels);
+  } catch(e) {
+    body.innerHTML = `<div class="load-section" style="color:#c0392b;">❌ 로드 실패: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `🔄 새로고침`;
+  }
+}
+
+function renderChannelList(channels) {
+  const body = document.getElementById('channel-list-body');
+  const filtered = _channelFilter === 'all' ? channels : channels.filter(c => c.type === _channelFilter);
+
+  body.innerHTML = `
+    <div class="filter-pills">
+      <span class="filter-pill ${_channelFilter==='all'?'active':''}" onclick="filterChannels('all')">전체 (${channels.length})</span>
+      <span class="filter-pill ${_channelFilter==='offline'?'active':''}" onclick="filterChannels('offline')">🏪 오프라인 매장</span>
+      <span class="filter-pill ${_channelFilter==='online'?'active':''}" onclick="filterChannels('online')">💻 온라인 플랫폼</span>
+    </div>
+    ${filtered.map((ch, i) => {
+      const realIdx = channels.indexOf(ch);
+      return `
+      <div class="channel-card" id="ch-card-${realIdx}" onclick="selectChannel(${realIdx})">
+        <div class="channel-top">
+          <div class="channel-logo" style="background:${ch.color || '#f5f5f5'};">${ch.icon}</div>
+          <div>
+            <div class="channel-name">${ch.name}</div>
+            <div class="channel-detail" style="font-size:11px; color:var(--text-muted);">${toEnAudience(ch.target_audience)}</div>
+          </div>
+          <span class="channel-type-badge ${ch.type}">${ch.type === 'online' ? '온라인' : '오프라인'}</span>
+        </div>
+        <div class="channel-detail">
+          💰 수수료: ${ch.commission} &nbsp;|&nbsp; 📦 MOQ: ${ch.moq}
+        </div>
+        ${(ch.buyer_email && !ch.buyer_email.includes('[['))
+          ? `<div style="font-size:11px;color:var(--text-muted);margin-top:5px;display:flex;align-items:center;gap:4px;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          ${ch.buyer_email}</div>`
+          : ch.vendor_portal_url
+            ? `<div style="font-size:11px;color:var(--klear-green-dark);margin-top:5px;font-weight:600;">
+          🏪 <a href="${ch.vendor_portal_url}" target="_blank" style="color:var(--klear-green-dark);">공식 벤더 포털에서 신청 →</a></div>`
+            : `<div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-style:italic;">📧 공식 웹사이트에서 신청 경로 확인 필요</div>`
+        }
+        ${ch.official_website ? `<div style="font-size:11px;color:var(--klear-green-dark);margin-top:2px;display:flex;align-items:center;gap:4px;">
+          🌐 <a href="${ch.official_website}" target="_blank" style="color:var(--klear-green-dark);">${ch.official_website.replace('https://','')}</a></div>` : ''}
+      </div>`;
+    }).join('')}`;
+}
+
+function filterChannels(type) {
+  _channelFilter = type;
+  if (_channelsCache) renderChannelList(_channelsCache);
+}
+
+function selectChannel(idx) {
+  document.querySelectorAll('.channel-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`ch-card-${idx}`)?.classList.add('selected');
+
+  const ch = _channelsCache[idx];
+  _selectedChannel = ch;
+
+  const isAmazonLike = ch.type === 'online' && (ch.name || '').toLowerCase().includes('amazon');
+  const isOnline     = ch.type === 'online';
+
+  // ── To 필드: 채널 특성에 따라 동적 변경 ──────────────────────────────────
+  let toText;
+  if (isAmazonLike) {
+    toText = 'Amazon Vendor Central — New Supplier Submission System';
+  } else if (isOnline) {
+    toText = (ch.buyer_email && !ch.buyer_email.includes('[['))
+      ? ch.buyer_email
+      : `${ch.name} Partner Portal — Brand Application System`;
+  } else {
+    toText = (ch.buyer_email && !ch.buyer_email.includes('[['))
+      ? ch.buyer_email
+      : (ch.vendor_portal_url
+          ? `${ch.name} Vendor Portal (${ch.vendor_portal_url})`
+          : `${ch.name} Buyer — Direct Outreach`);
+  }
+
+  document.getElementById('channel-selected-name').textContent = ch.name;
+  document.getElementById('ch-email-to').textContent = toText;
+
+  // ── 제목: 온라인/오프라인에 따라 동적 변경 ─────────────────────────────
+  document.getElementById('ch-email-subject').value = isAmazonLike
+    ? `[NEW VENDOR APPLICATION] Klear Sun Serum SPF50+ — K-Beauty Skincare Submission`
+    : isOnline
+      ? `[Klear K-Beauty] Brand Partnership Application — ${ch.name}`
+      : `[Klear K-Beauty] Retail Distribution Proposal — ${ch.name} Partnership`;
+
+  document.getElementById('ch-email-body').value = buildChannelEmail(ch);
+
+  // ── UI 구조는 채널 타입에 무관하게 항상 동일 ─────────────────────────
+  document.getElementById('channel-editor-empty').style.display = 'none';
+  document.getElementById('channel-email-editor').style.display = 'flex';
+  document.getElementById('channel-send-status').className = 'send-status';
+}
+
+function toEnAudience(raw) {
+  // target_audience가 한글로 들어올 경우 영어 폴백
+  if (!raw) return "US beauty consumers";
+  const hasKorean = /[\uAC00-\uD7A3]/.test(raw);
+  return hasKorean ? "US beauty consumers" : raw;
+}
+
+function buildChannelEmail(ch) {
+  const isAmazonLike = ch.type === 'online' && (ch.name || '').toLowerCase().includes('amazon');
+  const isOnline     = ch.type === 'online';
+
+  // ══════════════════════════════════════════════════════
+  // Amazon → 규격화된 제품 명세서(Spec Sheet) 포맷
+  // ══════════════════════════════════════════════════════
+  if (isAmazonLike) {
+    return `════════════════════════════════════════════════════
+NEW VENDOR / PRODUCT LISTING APPLICATION
+Submitted to: ${ch.name} Vendor Central
+Submission Date: ${new Date().toISOString().split('T')[0]}
+════════════════════════════════════════════════════
+
+[SECTION 1 — COMPANY INFORMATION]
+──────────────────────────────────
+Company Legal Name:   Klear K-Beauty Inc.
+Brand Name:           Klear
+Country of Origin:    Republic of Korea (South Korea)
+Business Type:        Brand Owner / Manufacturer
+US Entity:            Klear US LLC (Delaware)
+Tax ID (EIN):         [XX-XXXXXXX]
+DUNS Number:          [XXXXXXXXX]
+Contact Name:         [Your Name]
+Contact Email:        b2b@klear-beauty.com
+Contact Phone:        +1-XXX-XXX-XXXX
+Website:              www.klear-beauty.com
+
+[SECTION 2 — PRODUCT SPECIFICATION]
+──────────────────────────────────────
+Product Name:         Klear Sun Serum SPF50+ PA++++
+Product Category:     Beauty > Skin Care > Sun Care > Sunscreen
+Sub-Category:         Face Serum with SPF
+ASIN (if existing):   [NEW LISTING]
+UPC Barcode:          [XXXXXXXXXXXX]
+EAN Barcode:          [XXXXXXXXXXXXX]
+MSRP (Retail Price):  $38.00 USD
+Wholesale Price:      $[XX.XX] USD  (approx. ${ch.commission || '40-50% margin'})
+Case Pack Quantity:   12 units per case
+Unit Weight:          45g / 1.59 oz
+Unit Dimensions:      H: 14cm x W: 3.5cm x D: 3.5cm
+Case Weight:          0.65 kg
+Case Dimensions:      30cm x 20cm x 18cm
+
+[SECTION 3 — PRODUCT DETAILS]
+────────────────────────────────
+SPF Rating:           SPF50+ / PA++++ (Korean MFDS certified)
+Skin Type:            All skin types (sensitive-skin safe)
+Key Ingredients:      Niacinamide 5%, Centella Asiatica Extract,
+                      Sodium Hyaluronate, Zinc Oxide (physical UV)
+Free From:            Parabens, Sulfates, Artificial Fragrance,
+                      Mineral Oil, Alcohol
+Certifications:       EWG Verified Green / Cruelty-Free (Leaping Bunny)
+                      Dermatologist Tested / FDA OTC Monograph Compliant
+Shelf Life:           36 months from manufacture date
+Storage:              Below 25C / 77F, avoid direct sunlight
+
+[SECTION 4 — FULFILLMENT & LOGISTICS]
+────────────────────────────────────────
+Fulfillment Method:   FBA preferred / FBM available as backup
+US Warehouse:         [3PL Partner Name, City, State]
+Lead Time (Reorder):  4-6 weeks from PO confirmation
+MOQ (First Order):    ${ch.moq || '200 units'}
+EDI Capable:          Yes (EDI 850/855/856/810 supported)
+GS1 Registered:       Yes
+
+[SECTION 5 — MARKETING SUPPORT]
+──────────────────────────────────
+A+ Content:           Ready to upload (Brand Story + comparison modules)
+Sponsored Ads Budget: $[X,XXX]/month launch budget allocated
+Influencer Proof:     500K+ US TikTok/Instagram views (K-Beauty)
+Launch Timeline:      Ready within 14 days of approval
+
+[SECTION 6 — COMPLIANCE & DOCUMENTS]
+───────────────────────────────────────
+Documents Ready:      [v] Certificate of Insurance (COI)
+                      [v] Safety Data Sheet (SDS)
+                      [v] FDA Facility Registration
+                      [v] Country of Origin Certificate
+                      [v] Brand Authorization Letter
+                      [v] Full Ingredient Disclosure List
+
+════════════════════════════════════════════════════
+END OF SUBMISSION — Klear K-Beauty Inc.
+════════════════════════════════════════════════════`;
+  }
+
+  // ══════════════════════════════════════════════════════
+  // 온라인 플랫폼 (Soko Glam, Glow Recipe 등 K-뷰티 편집숍)
+  // ══════════════════════════════════════════════════════
+  if (isOnline) {
+    return `Dear ${ch.name} Brand Partnerships Team,
+
+I hope this message finds you well.
+
+My name is [Your Name], and I represent Klear, a science-backed K-Beauty brand from Seoul, Korea specializing in UV protection and skin barrier care.
+
+We are reaching out to explore a partnership opportunity to list our flagship product, Klear Sun Serum SPF50+/PA++++, on ${ch.name}.
+
+PRODUCT HIGHLIGHT
+---------------------------------------------------------
+• Zero white cast, lightweight serum texture
+• SPF50+ / PA++++ | EWG Verified | Cruelty-Free
+• Key ingredients: Niacinamide 5%, Centella Asiatica, Hyaluronic Acid
+• MSRP: $38 | Wholesale margin: ${ch.commission || '40-50%'}
+• Shelf life: 36 months | MOQ: ${ch.moq || '200 units'}
+---------------------------------------------------------
+
+WHY ${ch.name.toUpperCase()}:
+Your platform serves exactly the consumer segment Klear resonates with — ingredient-conscious K-Beauty enthusiasts who prioritize efficacy and transparency. We believe Klear Sun Serum is a natural fit for your ${toEnAudience(ch.target_audience)} audience.
+
+RECENT TRACTION:
+• 500K+ US TikTok/Instagram views in past 90 days
+• DTC Conversion Rate: [X]% | Repeat Purchase Rate: [X]%
+
+We would love to provide a full brand deck, samples, and any documentation you require.
+
+Best regards,
+[Your Name]
+Global Partnerships | Klear K-Beauty Inc.
+b2b@klear-beauty.com | www.klear-beauty.com`;
+  }
+
+  // ══════════════════════════════════════════════════════
+  // 오프라인 리테일 (Ulta, Target, Walmart 등)
+  // B2B 바이어 설득 이메일 — 마진율, 트렌드, 입점 시너지 강조
+  // ══════════════════════════════════════════════════════
+  return `Dear ${ch.name} Beauty Buying Team,
+
+I hope this message finds you well.
+
+My name is [Your Name], Head of B2B Partnerships at Klear K-Beauty Inc. I am writing to formally propose a retail distribution partnership with ${ch.name} for our flagship product, Klear Sun Serum SPF50+/PA++++.
+
+WHY NOW — THE K-BEAUTY SPF OPPORTUNITY
+---------------------------------------------------------
+The US SPF skincare segment is the fastest-growing beauty category (+67% YoY, Circana 2025). ${ch.name}'s ${toEnAudience(ch.target_audience)} shoppers are actively seeking lightweight, no-white-cast Korean sunscreens. Klear is uniquely positioned to fill this gap.
+---------------------------------------------------------
+
+KLEAR SUN SERUM — RETAIL PITCH:
+• Format: Serum-SPF hybrid (category-expanding format)
+• Claim: SPF50+/PA++++ | Zero white cast | Skin barrier repair
+• Consumer Price: $38 MSRP (premium accessible tier)
+• Proposed Wholesale: $[XX] | Gross Margin for ${ch.name}: ${ch.commission || '~50%'}
+• MOQ (Initial Order): ${ch.moq || '500 units per door'}
+
+BRAND CREDENTIALS:
+• Cruelty-Free (Leaping Bunny) | EWG Verified | Dermatologist Tested
+• FDA OTC Monograph compliant for US retail
+• 500K+ US TikTok/Instagram views (past 90 days)
+
+PARTNERSHIP SUPPORT:
+[v] In-store launch budget: Co-op advertising + sampling events
+[v] Staff training deck + tester kit provided
+[v] Planogram design & fixture support
+[v] EDI-capable, 4-week lead time
+[v] 90-day sell-through guarantee on initial buy
+
+We would be thrilled to present at your next line review. Could we schedule a 20-minute discovery call this month?
+
+Best regards,
+[Your Name]
+Head of B2B Partnerships | Klear K-Beauty Inc.
+b2b@klear-beauty.com | www.klear-beauty.com | +1-XXX-XXX-XXXX`;
+}
+
+function resetChannelEmail() {
+  if (_selectedChannel) {
+    selectChannel(_channelsCache.indexOf(_selectedChannel));
+  }
+}
+
+
+// ═══════════════════════════════════════════════════
+// 공통: 이메일 발송
+// ═══════════════════════════════════════════════════
+async function sendEmail(type) {
+  const isCreator = type === 'creator';
+  const subject = document.getElementById(isCreator ? 'c-email-subject' : 'ch-email-subject').value;
+  const body    = document.getElementById(isCreator ? 'c-email-body'    : 'ch-email-body').value;
+  const btnId   = isCreator ? 'btn-send-creator' : 'btn-send-channel';
+  const statusId= isCreator ? 'creator-send-status' : 'channel-send-status';
+  const btn     = document.getElementById(btnId);
+  const status  = document.getElementById(statusId);
+
+  // ── 채널(B2B) 전송: 실제 API 없이 페이크 알림으로 처리 ──────────────────
+  if (!isCreator) {
+    const chName = _selectedChannel?.name || '해당 채널';
+    const isAmazon = (chName.toLowerCase().includes('amazon'));
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-sm"></span> 제출 중...`;
+    status.className = 'send-status';
+
+    // 300ms 딜레이로 실제 처리 느낌 연출
+    await new Promise(r => setTimeout(r, 350));
+
+    const msg = isAmazon
+      ? `✅ Amazon Vendor Central에 제품 명세서(Spec Sheet)가
+성공적으로 제출되었습니다.
+
+제출 채널: ${chName}
+처리 시간: 영업일 기준 3~5일 소요 예정`
+      : `✅ ${chName}에 입점 제안서가
+성공적으로 전송되었습니다.
+
+담당 바이어 검토 후 영업일 기준 5~10일 내 회신 예정입니다.`;
+
+    // SweetAlert가 로드된 경우 사용, 없으면 기본 alert
+    if (window.Swal) {
+      Swal.fire({
+        icon: 'success',
+        title: `${chName} 전송 완료 ✅`,
+        text: isAmazon
+          ? 'Amazon Vendor Central에 제품 명세서가 제출되었습니다.'
+          : `${chName} 바이어팀에 입점 제안서가 전송되었습니다.`,
+        confirmButtonColor: '#9cb448',
+        confirmButtonText: '확인',
+      });
+    } else {
+      alert(msg);
+    }
+
+    status.textContent = `✅ ${chName} 전송 완료`;
+    status.className = 'send-status success';
+    // ── 대시보드 KPI 연동: 메일 발송량 +1 ─────────────────────────
+    try {
+      const cur = JSON.parse(localStorage.getItem('klear_stat_mails') || '28');
+      localStorage.setItem('klear_stat_mails', JSON.stringify(cur + 1));
+      const mails = JSON.parse(localStorage.getItem('klear_recent_mails') || '[]');
+      const h = new Date().getHours(), m2 = new Date().getMinutes();
+      mails.unshift({ icon:'🏢', iconClass:'mail-icon-channel',
+        name: chName, type:'유통채널', subtype:'channel',
+        time: `${String(h).padStart(2,'0')}:${String(m2).padStart(2,'0')}` });
+      localStorage.setItem('klear_recent_mails', JSON.stringify(mails.slice(0,20)));
+    } catch(_e) {}
+    btn.disabled = false;
+    btn.innerHTML = `📧 제안서 발송`;
+    return;
+  }
+
+  // ── 크리에이터 전송: 기존 API 방식 유지 ─────────────────────────────────
+  const to = _selectedCreator?.email;
+  if (!to) return;
+
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner-sm"></span> 발송 중...`;
+  status.className = 'send-status';
+
+  try {
+    const res = await fetch('/api/outreach/send-email', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ to, subject, body, type })
+    });
+    const data = await res.json();
+    if (data.success) {
+      status.textContent = `✅ ${to} 발송 완료!`;
+      status.className = 'send-status success';
+      // ── 대시보드 KPI 연동: 메일 발송량 +1 ─────────────────────────
+      try {
+        const cur = JSON.parse(localStorage.getItem('klear_stat_mails') || '28');
+        localStorage.setItem('klear_stat_mails', JSON.stringify(cur + 1));
+        const mails = JSON.parse(localStorage.getItem('klear_recent_mails') || '[]');
+        const h = new Date().getHours(), m2 = new Date().getMinutes();
+        // 플랫폼 정보 저장 (index.html의 getPlatIcon이 SVG 렌더링)
+        const creatorPlat = _selectedCreator?.platform || _selectedCreator?.multi_platform?.[0] || 'TikTok';
+        const platClsMap = { TikTok:'pic-tiktok', Instagram:'pic-instagram', YouTube:'pic-youtube', Reddit:'pic-reddit' };
+        mails.unshift({
+          platform: creatorPlat,
+          ic: platClsMap[creatorPlat] || 'pic-tiktok',
+          name: _selectedCreator?.handle || _selectedCreator?.name || to,
+          type: '크리에이터',
+          subtype: 'creator',
+          time: `${String(h).padStart(2,'0')}:${String(m2).padStart(2,'0')}` });
+        localStorage.setItem('klear_recent_mails', JSON.stringify(mails.slice(0,20)));
+      } catch(_e) {}
+    } else {
+      status.textContent = `❌ ${data.error}`;
+      status.className = 'send-status error';
+    }
+  } catch(e) {
+    status.textContent = `❌ 네트워크 오류: ${e.message}`;
+    status.className = 'send-status error';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `📧 메일 발송`;
+  }
+}
+
+</script>
+{% endblock %}
