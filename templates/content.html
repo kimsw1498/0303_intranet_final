@@ -164,7 +164,6 @@
         <div id="mp-result-panels" style="padding:16px 20px;"></div>
         <div style="padding:0 20px 20px;">
           <div class="n8n-row">
-            <button class="btn-secondary" onclick="sendMultiToN8n()">📤 n8n으로 자동 발행</button>
             <button class="btn-secondary" onclick="copyAllPosts()">📋 전체 복사</button>
           </div>
         </div>
@@ -259,9 +258,7 @@
         <div id="sb-concept" style="background:var(--klear-green-pale); border:1px solid var(--klear-green-light); border-radius:var(--radius-sm); padding:14px 18px; margin-bottom:20px;"></div>
         <div class="scenes-grid" id="sb-scenes-output"></div>
         <div id="sb-postprod" style="margin-top:20px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 18px;"></div>
-        <div class="n8n-row" style="margin-top:16px;">
-          <button class="btn-secondary" onclick="sendStoryboardToN8n()">📤 n8n으로 전송</button>
-        </div>
+
       </div>
     </div>
   </div>
@@ -622,12 +619,7 @@ function renderMultiResults(results, platforms, visionUsed) {
         <!-- 이미지 결과 -->
         <div id="img-result-${p}"></div>
 
-        <!-- n8n 발행 행 -->
         <div class="publish-row" id="publish-row-${p}" style="display:none;">
-          <button class="btn-publish" onclick="publishToN8n('${p}')">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
-            n8n으로 자동 발행
-          </button>
           <button class="btn-secondary" style="font-size:12px;" onclick="downloadAllMedia('${p}')">⬇️ 미디어 다운로드</button>
         </div>
       </div>

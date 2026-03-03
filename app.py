@@ -924,7 +924,7 @@ def api_trend_reddit():
 
         run_input = {
             'startUrls': [{'url': reddit_url}],
-            'maxItems': 50,
+            'maxItems': 100,
             'proxyConfiguration': {'useApifyProxy': True},
         }
 
@@ -1005,7 +1005,7 @@ def api_trend_youtube():
             try:
                 _ri = {
                     'searchQueries': [keyword],
-                    'maxResults': 3,
+                    'maxResults': 10,
                     'proxyConfiguration': {
                         'useApifyProxy': True,
                         'apifyProxyCountry': 'US',
@@ -1092,7 +1092,7 @@ def api_trend_tiktok():
 
         run_input = {
             "hashtags": ["sephorahaul", "skincare", "beauty"],
-            "resultsPerPage": 1,
+            "resultsPerPage": 10,
             "proxyConfiguration": {"useApifyProxy": True},
         }
 
@@ -1184,7 +1184,7 @@ def api_trend_instagram():
 
         run_input = {
             'hashtags': ['skincareroutine', 'skincaretips', 'healthyskin'],
-            'resultsLimit': 20,
+            'resultsLimit': 25,
             'proxyConfiguration': {'useApifyProxy': True},
         }
 
@@ -1320,7 +1320,7 @@ def api_trend_all():
         try:
             _rd_input = {
                 'startUrls': [{'url': 'https://www.reddit.com/r/AsianBeauty/new/'}],
-                'maxItems': 30,
+                'maxItems': 50,
                 'proxyConfiguration': {'useApifyProxy': True},
             }
             def _scrape_rd_all():
